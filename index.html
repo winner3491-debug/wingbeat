@@ -107,7 +107,9 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 .fig{margin:28px 0 0;display:flex;align-items:baseline;gap:10px;padding-top:18px;border-top:1px solid var(--hair2);width:300px}
 .fig b{font-size:44px;font-weight:300;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
 .fig span{font-size:13px;color:var(--mute)}
-.cap{margin:14px 0 0;width:300px;font-size:14px;line-height:1.75;color:#c8c5be;word-break:keep-all}
+.hud.left #dm{display:block;width:300px;height:46px;margin-top:16px}
+.hud.left .dmc{display:block;font-size:11px;color:var(--mute);margin-top:6px}
+.cap{margin:18px 0 0;width:300px;font-size:14px;line-height:1.75;color:#c8c5be;word-break:keep-all}
 .src{margin:10px 0 0;width:300px;font-size:11px;color:var(--mute)}
 #stxt{display:none}
 .right .yaw{display:none}
@@ -139,6 +141,7 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 <div class="hud left">
   <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p>
   <p class="fig"><b id="big"></b><span>초당 날갯짓</span></p>
+  <canvas id="dm" aria-hidden="true"></canvas><span class="dmc">날갯짓 모양</span>
   <p class="cap" id="cap"></p><p class="src" id="src"></p></div>
 </div>
 
