@@ -104,6 +104,13 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 .cfoot{font-size:12px;color:var(--mute);margin-top:20px}
 @media(max-width:900px){#cmp{inset:64px 0 0 0}.cgrid{overflow-x:auto}.cwrap{overflow-x:auto}}
 
+.fig{margin:28px 0 0;display:flex;align-items:baseline;gap:10px;padding-top:18px;border-top:1px solid var(--hair2);width:300px}
+.fig b{font-size:44px;font-weight:300;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.fig span{font-size:13px;color:var(--mute)}
+.cap{margin:14px 0 0;width:300px;font-size:14px;line-height:1.75;color:#c8c5be;word-break:keep-all}
+.src{margin:10px 0 0;width:300px;font-size:11px;color:var(--mute)}
+#stxt{display:none}
+.right .yaw{display:none}
 .evb{display:inline-flex;align-items:center;gap:8px;margin-top:14px;height:34px;padding:0 8px 0 14px;border:1px solid var(--hair2);border-radius:999px;font-size:13px;color:var(--ink);background:rgba(24,25,27,.7)}.evb:hover{border-color:var(--ink)}
 .evb:hover,.evb[aria-expanded=true]{color:var(--ink)}.evb i{font-style:normal;font-variant-numeric:tabular-nums;border:1px solid var(--hair2);border-radius:999px;padding:1px 8px;font-size:11px}
 .evp{margin-top:10px;width:300px;background:rgba(24,25,27,.94);backdrop-filter:blur(8px);border:1px solid var(--hair2);padding:16px 18px 14px;animation:evin .25s ease}
@@ -130,9 +137,9 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 <div id="stage" class="dots"><canvas id="cv" aria-label="선택한 새의 날개 궤적 애니메이션"></canvas><div class="drag" id="drag">드래그해서 돌려 보기 · 스크롤로 확대 · 더블클릭으로 원래대로</div></div>
 
 <div class="hud left">
-  <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p></div><button class="evb" id="evb" aria-expanded="false" aria-controls="evp"><span>정보</span><i id="evn"></i></button>
-  <div class="num"><span class="lab">초당 날갯짓</span><div class="big" id="big"></div><canvas id="dm"></canvas><span class="dmc">날갯짓 모양</span></div>
-  <div class="evp" id="evp" hidden><div class="evh"><b id="evt"></b><button id="evx" aria-label="닫기">×</button></div><ol id="evl"></ol><p class="evs" id="evs"></p></div>
+  <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p>
+  <p class="fig"><b id="big"></b><span>초당 날갯짓</span></p>
+  <p class="cap" id="cap"></p><p class="src" id="src"></p></div>
 </div>
 
 <div class="hud right">
@@ -432,8 +439,8 @@ let cur=0,step=1,yaw=20*Math.PI/180,pitch=0,T=3,playing=!matchMedia('(prefers-re
 function setBird(i,instant){cur=(i+BIRDS.length)%BIRDS.length;const b=BIRDS[cur];pitch=b.pitch;yaw=20*Math.PI/180;if(typeof syncYaw==='function')try{syncYaw()}catch(e){}
   document.querySelectorAll('.tile[data-i]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.i===cur));
   const hx=$('hx'),swap=()=>{$('head').textContent=b.word;$('who').innerHTML=`${b.ko}<i>${b.en}</i>`;$('copy').textContent=`${b.head.replace('.','')} — ${b.copy}`;
-    $('big').innerHTML=b.u?`${b.n}<small>번</small>`:b.n;
-    if(typeof evp!=='undefined'){$('evn').textContent=EVD[b.id].length;if(!evp.hidden)fillEv()}$('stxt').textContent=b.s[step];hx.classList.remove('out');$('stxt').classList.remove('out')};
+    $('big').textContent=b.n+(b.u?'번':'');$('cap').textContent=CAP[b.id][0];$('src').textContent='출처 · '+CAP[b.id][1];
+    $('stxt').textContent=b.s[step];hx.classList.remove('out');$('stxt').classList.remove('out')};
   if(instant)swap();else{hx.classList.add('out');$('stxt').classList.add('out');setTimeout(swap,280)}
   try{history.replaceState(null,'','#'+b.id)}catch(e){}}
 function setStep(s){step=s;document.querySelectorAll('.step').forEach(x=>x.setAttribute('aria-selected',+x.dataset.s===s));const st=$('stxt');st.classList.add('out');setTimeout(()=>{st.textContent=BIRDS[cur].s[s];st.classList.remove('out')},200)}
@@ -454,7 +461,7 @@ let rd=null;const PPS=120;
 rc.addEventListener('pointerdown',e=>{rd=e.clientX;rc.setPointerCapture(e.pointerId);playing=false;syncPlay()});
 rc.addEventListener('pointermove',e=>{if(rd===null)return;T-=(e.clientX-rd)/PPS;rd=e.clientX});
 rc.addEventListener('pointerup',()=>rd=null);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!evp.hidden){toggleEv(false);return}if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')setBird(cur+1);if(e.key==='ArrowLeft')setBird(cur-1);if(e.key===' '){e.preventDefault();pb.click()}if('123'.includes(e.key))setStep(+e.key-1)});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')setBird(cur+1);if(e.key==='ArrowLeft')setBird(cur-1);if(e.key===' '){e.preventDefault();pb.click()}if('123'.includes(e.key))setStep(+e.key-1)});
 
 function drawRuler(){const [x,W,H]=fit(rc);if(!W)return;const mid=W/2,base=H-26;
   x.fillStyle=`rgb(${INK})`;x.textAlign='center';
@@ -463,7 +470,7 @@ function drawRuler(){const [x,W,H]=fit(rc);if(!W)return;const mid=W/2,base=H-26;
     if(maj){x.font=`500 11px ${FONT}`;x.fillText(`${(r/10).toFixed(0)}s`,px,base+16)}}
   x.globalAlpha=1;x.fillStyle=`rgb(${INK})`;x.fillRect(mid-1,base-30,2,30);
   x.font=`600 12px ${FONT}`;x.fillText(`t ${T.toFixed(2)}s · 주기 ${Math.round(state(BIRDS[cur],T).cyc*100)}%`,mid,8+4);}
-function drawDots(){const [x,W,H]=fit(dm);if(!W)return;const b=BIRDS[cur],cols=22,rows=5,gx=W/cols,gy=H/rows,now=state(b,T).cyc,ci=Math.floor(now*cols);
+function drawDots(){if(!dm)return;const [x,W,H]=fit(dm);if(!W)return;const b=BIRDS[cur],cols=22,rows=5,gx=W/cols,gy=H/rows,now=state(b,T).cyc,ci=Math.floor(now*cols);
   for(let i=0;i<cols;i++){const st=state(b,b.cyc*(i+.5)/cols),v=Math.abs(b.mode==='hover'?st.tipB[0]:st.tipB[1])/0.9,lit=Math.round(st.w>.5?1+v*(rows-1):0);
     for(let j=0;j<rows;j++){const on=rows-1-j<lit;x.fillStyle=i===ci?(on?'#fff':'rgba(255,255,255,.35)'):on?'rgba(255,255,255,.6)':'rgba(255,255,255,.14)';x.beginPath();x.arc(gx*(i+.5),gy*(j+.5),i===ci?2:1.5,0,TAU);x.fill()}}}
 function tick(){const d=new Date(),h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0');$('clock').textContent=`SEL ${h}:${m}`}
@@ -540,12 +547,14 @@ const EVD={
  hummingbird:[['1초에 53번 날갯짓','National Geographic'],['날갯짓 진폭 약 111°','Tobalske 외 2007'],['위로 젓을 때 날개를 뒤집어 날개끝이 8자를 그린다','Tobalske 외 2007']],
  vulture:[['좁은 반경으로 선회해 상승기류의 가장 강한 곳에 머문다','Durmus & Keskin 2021'],['근연종(그리폰독수리) 날갯짓 시간은 비행의 3–12%','Harel 외 2016 · 그리폰독수리 연구'],['날개 길이 최대 약 3m','Vulture Conservation Foundation']],
  hawk:[['몇 번 힘차게 치고 활공하는 플랩-플랩-글라이드','British Garden Birds'],['정지비행은 하지 않는다','British Garden Birds'],['근연 매류 날갯짓 3.9–5.4Hz','해리스매 측정 2026',1]]};
-const evp=$('evp'),evb=$('evb');
-function fillEv(){const b=BIRDS[cur],L=EVD[b.id];$('evn').textContent=L.length;$('evt').textContent=b.ko+' · '+b.tk;
-  $('evl').innerHTML=L.map(([t,src,est])=>`<li${est?` class="est" data-tag="${est===2?'자료 없음':'추정'}"`:''}><span>${t}</span><em>${src}</em></li>`).join('');
-  $('evs').textContent='화면 속 움직임은 이 값을 바탕으로 단순화하고 느리게 재생한 모델입니다.'}
-function toggleEv(v){const on=v??evp.hidden;evp.hidden=!on;evb.setAttribute('aria-expanded',on);if(on)fillEv()}
-evb.onclick=()=>toggleEv();$('evx').onclick=()=>toggleEv(false);
+
+
+const CAP={
+ goose:['날개를 쭉 편 채 크지 않게 위아래로 칩니다. 날갯짓하는 내내 날개가 몸무게를 받쳐 주기 때문에, 쉬지 않고 같은 박자로 오래 날 수 있습니다.','Usherwood 외 2003 · 2016'],
+ woodpecker:['여섯 번쯤 빠르게 날갯짓한 뒤, 날개를 몸에 붙이고 떨어지듯 나아갑니다. 날갯짓은 약 0.47초, 날개를 접는 시간은 약 0.35초. 이 리듬이 반복되면서 길이 물결 모양이 됩니다.','Tobalske 1996'],
+ hummingbird:['날개를 위아래가 아니라 앞뒤로 약 110° 저어 제자리에 머뭅니다. 뒤로 보낼 때는 날개를 뒤집어서, 날개끝이 공중에 8자를 그립니다.','Tobalske 외 2007 · National Geographic'],
+ vulture:['거의 날갯짓하지 않고, 날개를 편 채 올라오는 더운 공기를 탑니다. 다른 독수리보다 좁게 원을 그려 상승기류가 가장 센 곳에 머뭅니다.','Durmus & Keskin 2021 · Harel 외 2016'],
+ hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010']};
 const start=BIRDS.findIndex(b=>'#'+b.id===location.hash);
 const wantCmp=location.hash==='#compare';setBird(start<0?0:start,true);setStep(1);syncYaw();syncPlay();requestAnimationFrame(frame);if(wantCmp)showPage('cmp');
 }
