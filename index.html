@@ -252,6 +252,17 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 .sbot{background:none}
 .sbot #steps{background:transparent;border:1px solid rgba(255,255,255,.1)}
 .ptabs{display:none}
+
+/* v36 icons */
+.hxw{position:relative}
+.icos{position:absolute;right:0;top:4px;display:flex;gap:6px}
+.ico{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);color:var(--ink);background:transparent;transition:background .2s,border-color .2s}
+.ico:hover{background:rgba(255,255,255,.08)}
+.ico.yt{background:#ff4e45;border-color:#ff4e45;color:#fff}.ico.yt:hover{background:#ff6a62}
+.ico[aria-expanded=true]{background:var(--ink);color:#141516;border-color:var(--ink)}
+.kout{margin-top:auto;padding-top:6px}
+.sbot{margin-top:0}
+#pn-ctl .ctlt{margin-bottom:4px}
 </style>
 </head>
 <body class="dots">
@@ -266,26 +277,26 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 
 <aside class="side" id="side">
   <div class="tiles" id="tiles"></div>
-  <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p></div>
+  <div class="hxw"><div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p></div>
+  <div class="icos"><a class="ico yt" id="vid" target="_blank" rel="noopener" aria-label="유튜브 영상"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></a><button class="ico" id="t-ctl" aria-expanded="false" aria-label="궤적 조절 열기" title="궤적 조절"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div></div>
   <div class="pane" id="pn-info">
   <p class="fig"><b id="big"></b><span>초당 날갯짓</span></p>
   <canvas id="dm" aria-hidden="true"></canvas><span class="dmc">날갯짓 모양</span>
   <p class="cap" id="cap"></p><p class="src" id="src"></p>
-  <div class="note"><a class="vid" id="vid" target="_blank" rel="noopener"></a>
-  <p class="ideal">바람이나 자세 변화가 없는 <b>이상적인 상황</b>을 가정한 궤적이에요. 실제 새는 날 때마다 조금씩 달라요.</p></div></div>
+  <div class="note"><p class="ideal">바람이나 자세 변화가 없는 <b>이상적인 상황</b>을 가정한 궤적이에요. 실제 새는 날 때마다 조금씩 달라요.</p></div></div>
 
-  <section class="ctl pane" id="pn-ctl" aria-label="궤적 조절"><p class="ctlt">궤적 만지기</p>
+  <section class="ctl pane" id="pn-ctl" aria-label="궤적 조절" hidden><p class="ctlt">궤적 조절</p>
     <label class="sl"><span>폭</span><input type="range" id="c-amp" min="0.4" max="1.6" step="0.05" value="1"><output id="o-amp">100%</output></label>
     <label class="sl"><span>속도</span><input type="range" id="c-freq" min="0.4" max="2" step="0.05" value="1"><output id="o-freq">100%</output></label>
     <label class="sl" style="display:none"><span>방향</span><input type="range" id="c-turn" min="-1" max="1" step="0.05" value="0"><output id="o-turn">직진</output></label>
     <label class="sl" style="display:none"><span>높이</span><input type="range" id="c-climb" min="-0.4" max="0.4" step="0.02" value="0"><output id="o-climb">수평</output></label>
     <label class="sl"><span>길이</span><input type="range" id="c-len" min="1" max="8" step="0.5" value="4"><output id="o-len">4주기</output></label>
     <div class="tg"><button class="sw" id="t-bird" aria-pressed="true"><i></i>새 보기</button><button class="pill" id="t-obj">↓ 3D 파일 (.obj)</button></div>
-    <p class="keys"><span><kbd>←</kbd><kbd>→</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd> 높이</span><span><kbd>B</kbd> 새</span><span><kbd>1</kbd>–<kbd>5</kbd> 새 고르기</span></p>
     <p class="msg" id="msg" role="status"></p>
     <button class="lnk rst" id="reset">↺ 처음대로</button>
   </section>
 
+  <p class="keys kout"><span><kbd>←</kbd><kbd>→</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd> 높이</span><span><kbd>B</kbd> 새</span><span><kbd>1</kbd>–<kbd>5</kbd> 새 고르기</span></p>
   <div class="sbot">
     <p class="stxt fade" id="stxt"></p>
     <div role="tablist" id="steps"><button class="step" role="tab" data-s="0">경로</button><button class="step" role="tab" data-s="1">주기</button><button class="step" role="tab" data-s="2">궤적</button></div>
@@ -604,7 +615,7 @@ let cur=0,step=1,yaw=20*Math.PI/180,pitch=0,T=3,playing=!matchMedia('(prefers-re
 function setBird(i,instant){cur=(i+BIRDS.length)%BIRDS.length;const b=BIRDS[cur];pitch=b.pitch;yaw=20*Math.PI/180;if(typeof syncYaw==='function')try{syncYaw()}catch(e){}
   document.querySelectorAll('.tile[data-i]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.i===cur));
   const hx=$('hx'),swap=()=>{$('head').textContent=b.word;$('who').innerHTML=`${b.ko}<i>${b.en}</i>`;$('copy').textContent=`${b.head.replace('.','')} — ${b.copy}`;
-    $('big').textContent=b.n+(b.u?'번':'');$('cap').textContent=CAP[b.id][0];{const v=VID[b.id];$('vid').href=v[0];$('vid').textContent=v[1]}$('src').textContent='출처 · '+CAP[b.id][1];
+    $('big').textContent=b.n+(b.u?'번':'');$('cap').textContent=CAP[b.id][0];{const v=VID[b.id];$('vid').href=v[0];$('vid').title=v[1];$('vid').setAttribute('aria-label',v[1])}$('src').textContent='출처 · '+CAP[b.id][1];
     $('stxt').textContent=b.s[step];hx.classList.remove('out');$('stxt').classList.remove('out')};
   if(instant)swap();else{hx.classList.add('out');$('stxt').classList.add('out');setTimeout(swap,280)}
   try{history.replaceState(null,'','#'+b.id)}catch(e){}}
@@ -737,6 +748,7 @@ window.__setC=setC;window.__showC=(k,v)=>{const o=$('o-'+k),t=fmtC(k,Math.round(
 ['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
 function resetC(){resetLog();setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
 $('reset').onclick=resetC;resetC();
+$('t-ctl').onclick=()=>{const c=$('pn-ctl'),o=c.hidden;c.hidden=!o;$('pn-info').hidden=o;$('t-ctl').setAttribute('aria-expanded',o);$('t-ctl').setAttribute('aria-label',o?'궤적 조절 닫기':'궤적 조절 열기')};
 if(document.querySelector('.ptabs'))document.querySelector('.ptabs').onclick=e=>{const x=e.target.closest('button');if(!x)return;document.querySelectorAll('.ptabs button').forEach(y=>y.setAttribute('aria-selected',y===x));$('pn-info').hidden=x.dataset.pn!=='info';$('pn-ctl').hidden=x.dataset.pn!=='ctl';if(x.dataset.pn==='info'&&window.drawDotsNow)drawDotsNow()};
 {const d=$('drag'),hide=()=>d.classList.add('gone');setTimeout(hide,6000);$('cv').addEventListener('pointerdown',hide,{once:true});$('cv').addEventListener('wheel',hide,{once:true,passive:true})}
 function toggleBird(){CTRL.bird=!CTRL.bird;$('t-bird').setAttribute('aria-pressed',CTRL.bird)}
