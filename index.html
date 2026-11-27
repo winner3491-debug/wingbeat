@@ -664,7 +664,7 @@ function render(cv,b,t,cam,o){
     ctx.fillStyle=`rgb(${INK})`;for(let s=t-(t%b.cyc);s>t-o.path;s-=b.cyc){const q=P(baseOf(state(b,s)));ctx.beginPath();ctx.arc(q[0],q[1],2,0,TAU);ctx.fill()}}
   // floor plane (3D cue): grid anchored in world, shadow, drop line, wingbeat ripples
   const o2=P([0,0,0]);if(cam.pan)PAN.bird=o2;
-  if(cam.pan&&b.mode==='hover'&&!fixed){const sp=HVS.sp,vy=HVS.vy,lab=sp>.25?'전진 비행 · 몸과 날갯짓 면이 앞으로 기울어요':sp<-.2?'후진 비행 · 몸을 세우고 날갯짓 면은 수평에 가깝게':vy>.3?'상승':vy<-.3?'하강':'제자리 비행 · 날개끝이 8자를 그려요';ctx.font=`500 12px ${FONT}`;ctx.textAlign='center';const tw=ctx.measureText(lab).width+20,yy=o2[1]+c.scale*.62;ctx.fillStyle=`rgba(${BGC},.7)`;ctx.beginPath();ctx.roundRect(o2[0]-tw/2,yy-13,tw,24,12);ctx.fill();ctx.fillStyle=`rgba(${INK},.85)`;ctx.fillText(lab,o2[0],yy+4)}
+  if(cam.pan&&b.mode==='hover'&&!fixed){const sp=HVS.sp,vy=HVS.vy,lab=sp>.25?'전진 비행':sp<-.2?'후진 비행':vy>.3?'상승':vy<-.3?'하강':'제자리 비행';ctx.font=`500 12px ${FONT}`;ctx.textAlign='center';const tw=ctx.measureText(lab).width+20,yy=o2[1]+c.scale*.62;ctx.fillStyle=`rgba(${BGC},.7)`;ctx.beginPath();ctx.roundRect(o2[0]-tw/2,yy-13,tw,24,12);ctx.fill();ctx.fillStyle=`rgba(${INK},.85)`;ctx.fillText(lab,o2[0],yy+4)}
   if(o.floor)space(ctx,P,W,H,fixed?[0,0,0]:now.S);
   if(o.floor){const Y=-1.15,R=3,fx=fixed?0:now.S[0],fz=fixed?0:now.S[2],ox=fx-Math.floor(fx),oz=fz-Math.floor(fz);ctx.lineWidth=1;
     const seg=(p0,p1)=>{const n=12;for(let i=0;i<n;i++){const u0=i/n,u1=(i+1)/n,q0=[p0[0]+(p1[0]-p0[0])*u0,Y,p0[2]+(p1[2]-p0[2])*u0],q1=[p0[0]+(p1[0]-p0[0])*u1,Y,p0[2]+(p1[2]-p0[2])*u1],r=Math.hypot((q0[0]+q1[0])/2,(q0[2]+q1[2])/2);
@@ -834,7 +834,7 @@ const EVD={
 const CAP={
  goose:['날개를 쭉 편 채 크지 않게 위아래로 칩니다. 날갯짓하는 내내 날개가 몸무게를 받쳐 주기 때문에, 쉬지 않고 같은 박자로 오래 날 수 있습니다.','Usherwood 외 2003 · 2016'],
  woodpecker:['여섯 번쯤 빠르게 날갯짓한 뒤, 날개를 몸에 붙이고 떨어지듯 나아갑니다. 날갯짓은 약 0.47초, 날개를 접는 시간은 약 0.35초. 이 리듬이 반복되면서 길이 물결 모양이 됩니다.','Tobalske 1996'],
- hummingbird:['날개를 위아래가 아니라 앞뒤로 약 110° 저어 제자리에 머뭅니다. 뒤로 보낼 때는 날개를 뒤집어서, 날개끝이 공중에 8자를 그립니다. 몸무게의 75%는 앞으로 칠 때, 25%는 뒤로 칠 때 떠받쳐요. 앞으로 날 때는 몸과 날갯짓 면을 함께 앞으로 기울이고, 뒤로 날 때는 몸을 세워요. ← →로 뒤·앞으로 날려 보세요.','Tobalske 외 2007 · Warrick 외 2005 · Sapir·Dudley 2012'],
+ hummingbird:['날개를 앞뒤로 약 110° 저어 제자리에 머물며, 날개끝이 공중에 8자를 그립니다. 앞으로 칠 때 몸무게의 75%를 떠받쳐요.','Tobalske 외 2007 · Warrick 외 2005 · Sapir·Dudley 2012'],
  vulture:['거의 날갯짓하지 않고, 날개를 편 채 올라오는 더운 공기를 탑니다. 다른 독수리보다 좁게 원을 그려 상승기류가 가장 센 곳에 머뭅니다.','Durmus & Keskin 2021 · Harel 외 2016'],
  hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010']};
 
