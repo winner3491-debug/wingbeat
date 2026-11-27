@@ -416,8 +416,9 @@ const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true},TGT={amp:1,freq:1,turn:
 let USELOG=false;const SLV={turn:0,climb:0},LOG={id:null,s0:0,h:1/120,X:[],D:[]};
 const rotY=(v,a)=>{const c=Math.cos(a),s=Math.sin(a);return[v[0]*c-v[2]*s,v[1],v[0]*s+v[2]*c]};
 function logStep(b){const i=LOG.X.length-1,h=LOG.h,sv=LOG.s0+i*h,fm=b.mode==='soar'?1:CTRL.freq,u=sv*fm,e=1e-3,A=KIN[b.mode](u-e).S,C=KIN[b.mode](u+e).S,vx=(C[0]-A[0])/(2*e),vz=(C[2]-A[2])/(2*e),vh=Math.hypot(vx,vz),Dl=LOG.D[i],r=rotY([vx,0,vz],Dl),X=LOG.X[i];
-  if(b.mode==='hover'){LOG.X.push([X[0],X[1]+CTRL.climb*1.6*h,X[2]+CTRL.turn*1.1*h]);LOG.D.push(Dl);return}
-  LOG.X.push([X[0]+r[0]*h,X[1]+CTRL.climb*vh*h,X[2]+r[2]*h]);LOG.D.push(Dl+CTRL.turn*1.1*Math.max(vh,.7)*h)}
+  if(b.mode==='hover'){const cyh=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(2.4-X[1])/1.2)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.1)/.6));LOG.X.push([X[0],X[1]+cyh*1.6*h,X[2]+CTRL.turn*1.1*h]);LOG.D.push(Dl);return}
+  const cy=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(2.4-X[1])/1.2)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.1)/.6));
+  LOG.X.push([X[0]+r[0]*h,X[1]+cy*vh*h,X[2]+r[2]*h]);LOG.D.push(Dl+CTRL.turn*1.1*Math.max(vh,.7)*h)}
 function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
   if(LOG.id!==b.id||t<LOG.s0+1||t>end()+20){LOG.id=b.id;LOG.s0=t-16;LOG.X=[[0,0,0]];LOG.D=[0]}
   else if(t<end()-.2){const k=Math.max(1,Math.ceil((t-LOG.s0)/LOG.h)+1);LOG.X.length=k;LOG.D.length=k}
@@ -426,7 +427,7 @@ function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
 function resetLog(){LOG.id=null}
 function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let S=k.S.slice(),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip,pt=k.pt||0;
   if(USELOG&&LOG.id===b.id&&LOG.X.length>1){const n=LOG.X.length,f=Math.max(0,Math.min(n-1.0001,(t-LOG.s0)/LOG.h)),i=Math.floor(f),w=f-i,X0=LOG.X[i],X1=LOG.X[i+1],Dl=LOG.D[i]+(LOG.D[i+1]-LOG.D[i])*w;
-    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode!=='hover')pt+=Math.atan(CTRL.climb)*.8}
+    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode!=='hover'){const j=Math.max(0,i-12),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],hz=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])||1e-6;pt+=Math.atan((Xb[1]-Xa[1])/hz)*.45}}
   else{
   if(b.mode==='soar'){S[1]+=CTRL.climb*.5*t;const g=1-CTRL.turn*.45;S=[S[0]*g,S[1],S[2]*g]}
   else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}}
