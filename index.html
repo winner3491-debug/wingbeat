@@ -852,7 +852,17 @@ function say(t){$('msg').textContent=t;clearTimeout(say.t);say.t=setTimeout(()=>
 $('t-obj').onclick=()=>{const m=LASTMESH;if(!m){say('궤적을 그린 뒤 다시 눌러 주세요');return}
   const L=['# Wingbeat trace · '+m.id,'o wingbeat_'+m.id];m.A3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));m.B3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));
   const n=m.A3.length;for(let j=1;j<n;j++)L.push(`f ${j} ${j+1} ${n+j+1} ${n+j}`);
-  try{const url=URL.createObjectURL(new Blob([L.join('\n')],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download=`wingbeat-${m.id}.obj`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);say('지금 화면의 궤적을 .obj 파일로 저장했어요. 이 화면에서 받아지지 않으면 GitHub 사이트에서 받아 주세요.')}catch(e){say('이 화면에서는 파일을 받을 수 없어요. GitHub 사이트에서 받아 주세요.')}};
+  const txt=L.join('\n'),name=`wingbeat-${m.id}.obj`;
+  if(DLNS){const zip=zipOne(name,new TextEncoder().encode(txt));DLNS.save({filename:`wingbeat-${m.id}-obj.zip`,data:zip}).then(()=>say('궤적 3D 파일을 zip으로 저장했어요. 압축을 풀면 .obj 파일이 있어요.'),e=>{const c=e&&e.code;say(c==='declined'?'저장을 취소했어요.':c==='rate_limited'?'잠시 후 다시 눌러 주세요.':'이 화면에서는 파일을 받을 수 없어요. GitHub 사이트에서 받아 주세요.')});return}
+  try{const url=URL.createObjectURL(new Blob([txt],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);say('지금 화면의 궤적을 .obj 파일로 저장했어요.')}catch(e){say('이 화면에서는 파일을 받을 수 없어요. GitHub 사이트에서 받아 주세요.')}};
+let DLNS=null;try{if(window.claude&&typeof window.claude.use==='function')window.claude.use('downloads').then(n=>{DLNS=n},()=>{})}catch(e){}
+function zipOne(name,data){const T=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;T[n]=c>>>0}
+  let crc=0xFFFFFFFF;for(let i=0;i<data.length;i++)crc=T[(crc^data[i])&255]^(crc>>>8);crc=(crc^0xFFFFFFFF)>>>0;
+  const nm=new TextEncoder().encode(name),lh=new DataView(new ArrayBuffer(30)),ch=new DataView(new ArrayBuffer(46)),ed=new DataView(new ArrayBuffer(22)),n=data.length;
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint32(14,crc,true);lh.setUint32(18,n,true);lh.setUint32(22,n,true);lh.setUint16(26,nm.length,true);
+  ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint32(16,crc,true);ch.setUint32(20,n,true);ch.setUint32(24,n,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,0,true);
+  const cdOff=30+nm.length+n,cdLen=46+nm.length;ed.setUint32(0,0x06054b50,true);ed.setUint16(8,1,true);ed.setUint16(10,1,true);ed.setUint32(12,cdLen,true);ed.setUint32(16,cdOff,true);
+  return new Blob([lh.buffer,nm,data,ch.buffer,nm,ed.buffer],{type:'application/zip'})}
 const VID={goose:['https://www.youtube.com/watch?v=y0aMoOssBDY','캐나다기러기 비행 슬로모션'],
  woodpecker:['https://www.youtube.com/watch?v=BA5qpodj34Y','솜털딱다구리 비행 슬로모션'],
  hummingbird:['https://www.youtube.com/watch?v=gJ_T_Y1rxHw','벌새 정지비행 슬로모션 · Smithsonian Channel'],
