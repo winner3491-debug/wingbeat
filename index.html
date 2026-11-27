@@ -416,7 +416,7 @@ const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true},TGT={amp:1,freq:1,turn:
 let USELOG=false;const SLV={turn:0,climb:0},LOG={id:null,s0:0,h:1/120,X:[],D:[]};
 const rotY=(v,a)=>{const c=Math.cos(a),s=Math.sin(a);return[v[0]*c-v[2]*s,v[1],v[0]*s+v[2]*c]};
 function logStep(b){const i=LOG.X.length-1,h=LOG.h,sv=LOG.s0+i*h,fm=b.mode==='soar'?1:CTRL.freq,u=sv*fm,e=1e-3,A=KIN[b.mode](u-e).S,C=KIN[b.mode](u+e).S,vx=(C[0]-A[0])/(2*e),vz=(C[2]-A[2])/(2*e),vh=Math.hypot(vx,vz),Dl=LOG.D[i],r=rotY([vx,0,vz],Dl),X=LOG.X[i];
-  if(b.mode==='hover'){const cyh=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));const mag=Math.min(1,(Math.abs(CTRL.turn)+Math.abs(CTRL.climb))*2.2),v=1.1*mag;LOG.X.push([X[0]+Math.cos(Dl)*v*h,X[1]+cyh*1.8*h,X[2]+Math.sin(Dl)*v*h]);LOG.D.push(Dl+CTRL.turn*1.3*h);return}
+  if(b.mode==='hover'){const cyh=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));const v=CTRL.turn>0?1.2*CTRL.turn:.8*CTRL.turn;LOG.X.push([X[0]+Math.cos(Dl)*v*h,X[1]+cyh*1.8*h,X[2]+Math.sin(Dl)*v*h]);LOG.D.push(Dl);return}
   const cy=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));
   LOG.X.push([X[0]+r[0]*h,X[1]+cy*vh*h,X[2]+r[2]*h]);LOG.D.push(Dl+CTRL.turn*1.1*Math.max(vh,.7)*h)}
 function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
@@ -427,7 +427,7 @@ function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
 function resetLog(){LOG.id=null}
 function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let S=k.S.slice(),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip,pt=k.pt||0;
   if(USELOG&&LOG.id===b.id&&LOG.X.length>1){const n=LOG.X.length,f=Math.max(0,Math.min(n-1.0001,(t-LOG.s0)/LOG.h)),i=Math.floor(f),w=f-i,X0=LOG.X[i],X1=LOG.X[i+1],Dl=LOG.D[i]+(LOG.D[i+1]-LOG.D[i])*w;
-    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode==='hover'){const j=Math.max(0,i-24),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],dtv=(Math.min(n-1,i+1)-j)*LOG.h||1,sp=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])/dtv,vy=(Xb[1]-Xa[1])/dtv;pt+=-.75*Math.min(1,sp/1.1)+.25*Math.max(-1,Math.min(1,vy/1.8))}else if(b.mode!=='hover'){const j=Math.max(0,i-12),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],hz=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])||1e-6;pt+=Math.atan((Xb[1]-Xa[1])/hz)*.45}}
+    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode==='hover'){const j=Math.max(0,i-24),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],dtv=(Math.min(n-1,i+1)-j)*LOG.h||1,sp=((Xb[0]-Xa[0])*Math.cos(Dl)+(Xb[2]-Xa[2])*Math.sin(Dl))/dtv,vy=(Xb[1]-Xa[1])/dtv,e=(sp>0?-.75*Math.min(1,sp/1.2):.4*Math.min(1,-sp/.8))+.22*Math.max(-1,Math.min(1,vy/1.8));pt+=e;const ce=Math.cos(e*.85),se=Math.sin(e*.85);tb=[tb[0]*ce-tb[1]*se,tb[0]*se+tb[1]*ce,tb[2]];HVS.sp=sp;HVS.vy=vy}else if(b.mode!=='hover'){const j=Math.max(0,i-12),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],hz=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])||1e-6;pt+=Math.atan((Xb[1]-Xa[1])/hz)*.45}}
   else{
   if(b.mode==='soar'){S[1]+=CTRL.climb*.5*t;const g=1-CTRL.turn*.45;S=[S[0]*g,S[1],S[2]*g]}
   else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}}
@@ -626,7 +626,7 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   gr.addColorStop(0,`rgba(${GLOW},.11)`);gr.addColorStop(.5,`rgba(${GLOW},.04)`);gr.addColorStop(1,`rgba(${GLOW},0)`);ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
   ctx.save();try{ctx.filter='drop-shadow(0 0 1px rgba(245,242,235,.55)) drop-shadow(0 0 14px rgba(245,242,235,.22))'}catch(e){}ctx.drawImage(g.rd.domElement,0,0,W,H);ctx.restore();return true}
 
-let LASTMESH=null;const HC={id:null,S:[0,0,0],t:0};
+let LASTMESH=null;const HC={id:null,S:[0,0,0],t:0},HVS={sp:0,vy:0};
 const CLOUDS=(()=>{let sd=7;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const out=[];
   for(let i=0;i<16;i++){const n=5+Math.floor(r()*5),w=1.2+r()*2.2,puffs=[];for(let k=0;k<n;k++){const u=k/(n-1)-.5;puffs.push([u*w+(r()-.5)*.4,Math.max(0,(.5-Math.abs(u))*w*.35*r()),(r()-.5)*.6,.35+r()*.5*(1-Math.abs(u))])}
     out.push({p:[(r()-.5)*30,-1.4+r()*4.2,-9+r()*13],puffs,a:.75+r()*.25})}return out})();
@@ -664,6 +664,7 @@ function render(cv,b,t,cam,o){
     ctx.fillStyle=`rgb(${INK})`;for(let s=t-(t%b.cyc);s>t-o.path;s-=b.cyc){const q=P(baseOf(state(b,s)));ctx.beginPath();ctx.arc(q[0],q[1],2,0,TAU);ctx.fill()}}
   // floor plane (3D cue): grid anchored in world, shadow, drop line, wingbeat ripples
   const o2=P([0,0,0]);if(cam.pan)PAN.bird=o2;
+  if(cam.pan&&b.mode==='hover'&&!fixed){const sp=HVS.sp,vy=HVS.vy,lab=sp>.25?'전진 비행 · 몸과 날갯짓 면이 앞으로 기울어요':sp<-.2?'후진 비행 · 몸을 세우고 날갯짓 면은 수평에 가깝게':vy>.3?'상승':vy<-.3?'하강':'제자리 비행 · 날개끝이 8자를 그려요';ctx.font=`500 12px ${FONT}`;ctx.textAlign='center';const tw=ctx.measureText(lab).width+20,yy=o2[1]+c.scale*.62;ctx.fillStyle=`rgba(${BGC},.7)`;ctx.beginPath();ctx.roundRect(o2[0]-tw/2,yy-13,tw,24,12);ctx.fill();ctx.fillStyle=`rgba(${INK},.85)`;ctx.fillText(lab,o2[0],yy+4)}
   if(o.floor)space(ctx,P,W,H,fixed?[0,0,0]:now.S);
   if(o.floor){const Y=-1.15,R=3,fx=fixed?0:now.S[0],fz=fixed?0:now.S[2],ox=fx-Math.floor(fx),oz=fz-Math.floor(fz);ctx.lineWidth=1;
     const seg=(p0,p1)=>{const n=12;for(let i=0;i<n;i++){const u0=i/n,u1=(i+1)/n,q0=[p0[0]+(p1[0]-p0[0])*u0,Y,p0[2]+(p1[2]-p0[2])*u0],q1=[p0[0]+(p1[0]-p0[0])*u1,Y,p0[2]+(p1[2]-p0[2])*u1],r=Math.hypot((q0[0]+q1[0])/2,(q0[2]+q1[2])/2);
@@ -675,7 +676,7 @@ function render(cv,b,t,cam,o){
     const fl=P([0,Y,0]);ctx.setLineDash([2,4]);ctx.strokeStyle=`rgba(${INK},.3)`;ctx.beginPath();ctx.moveTo(o2[0],o2[1]);ctx.lineTo(fl[0],fl[1]);ctx.stroke();ctx.setLineDash([])}
   // ribbon: solid swept surface (time-stable sampling, depth-sorted, shaded)
   const N=o.n||140,dt=o.win/N,i0=Math.floor((t-o.win)/dt),ts=[];for(let i=1;i<=N;i++)ts.push((i0+i)*dt);ts.push(t);
-  const A3=[],B3=[],A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
+  const A3=[],B3=[],A=[],B=[],F=[],WG=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)));WG.push(b.mode==='hover'?.55+.45*Math.tanh(3*Math.cos(TAU*(st.ph||0))):1)});
   const M=A.length;
   // faint body so it still reads as a surface
   for(let j=0;j<M-1;j++){ctx.fillStyle=`rgba(${INK},${.06*o.alpha*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
@@ -683,7 +684,7 @@ function render(cv,b,t,cam,o){
   const L=26,CH=Math.max(3,Math.round(M/90));ctx.lineWidth=.7;ctx.lineJoin='round';
   for(let k=0;k<=L;k++){const f=k/L,edge=k===0||k===L,pts=new Array(M);for(let j=0;j<M;j++){const a3=A3[j],b3=B3[j];pts[j]=P([a3[0]+(b3[0]-a3[0])*f,a3[1]+(b3[1]-a3[1])*f,a3[2]+(b3[2]-a3[2])*f])}
     const w=edge?1.4:.9,base=.38+.55*Math.pow(f,1.1);ctx.lineWidth=w;
-    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],fd=ag<.55?Math.pow(ag/.55,1.8):1,al=Math.min(1,(edge?.95:base)*fd*o.alpha);
+    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],fd=(ag<.55?Math.pow(ag/.55,1.8):1)*WG[Math.min(M-1,j0+(CH>>1))],al=Math.min(1,(edge?.95:base)*fd*o.alpha);
       ctx.strokeStyle=`rgba(${INK},${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
   LASTMESH={A3,B3,id:b.id};
   if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach(q=>{if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
@@ -833,7 +834,7 @@ const EVD={
 const CAP={
  goose:['날개를 쭉 편 채 크지 않게 위아래로 칩니다. 날갯짓하는 내내 날개가 몸무게를 받쳐 주기 때문에, 쉬지 않고 같은 박자로 오래 날 수 있습니다.','Usherwood 외 2003 · 2016'],
  woodpecker:['여섯 번쯤 빠르게 날갯짓한 뒤, 날개를 몸에 붙이고 떨어지듯 나아갑니다. 날갯짓은 약 0.47초, 날개를 접는 시간은 약 0.35초. 이 리듬이 반복되면서 길이 물결 모양이 됩니다.','Tobalske 1996'],
- hummingbird:['날개를 위아래가 아니라 앞뒤로 약 110° 저어 제자리에 머뭅니다. 뒤로 보낼 때는 날개를 뒤집어서, 날개끝이 공중에 8자를 그립니다.','Tobalske 외 2007 · National Geographic'],
+ hummingbird:['날개를 위아래가 아니라 앞뒤로 약 110° 저어 제자리에 머뭅니다. 뒤로 보낼 때는 날개를 뒤집어서, 날개끝이 공중에 8자를 그립니다. 몸무게의 75%는 앞으로 칠 때, 25%는 뒤로 칠 때 떠받쳐요. 앞으로 날 때는 몸과 날갯짓 면을 함께 앞으로 기울이고, 뒤로 날 때는 몸을 세워요. ← →로 뒤·앞으로 날려 보세요.','Tobalske 외 2007 · Warrick 외 2005 · Sapir·Dudley 2012'],
  vulture:['거의 날갯짓하지 않고, 날개를 편 채 올라오는 더운 공기를 탑니다. 다른 독수리보다 좁게 원을 그려 상승기류가 가장 센 곳에 머뭅니다.','Durmus & Keskin 2021 · Harel 외 2016'],
  hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010']};
 
