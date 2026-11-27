@@ -617,13 +617,25 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   gr.addColorStop(0,`rgba(${GLOW},.11)`);gr.addColorStop(.5,`rgba(${GLOW},.04)`);gr.addColorStop(1,`rgba(${GLOW},0)`);ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
   ctx.save();try{ctx.filter='drop-shadow(0 0 1px rgba(245,242,235,.55)) drop-shadow(0 0 14px rgba(245,242,235,.22))'}catch(e){}ctx.drawImage(g.rd.domElement,0,0,W,H);ctx.restore();return true}
 
-let LASTMESH=null;const PAN={x:0,y:0,z:1,box:null};
+let LASTMESH=null;
+const CLOUDS=(()=>{let sd=7;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const out=[];
+  for(let i=0;i<16;i++){const n=5+Math.floor(r()*5),w=1.2+r()*2.2,puffs=[];for(let k=0;k<n;k++){const u=k/(n-1)-.5;puffs.push([u*w+(r()-.5)*.4,Math.max(0,(.5-Math.abs(u))*w*.35*r()),(r()-.5)*.6,.35+r()*.5*(1-Math.abs(u))])}
+    out.push({p:[(r()-.5)*30,-1.4+r()*4.2,-9+r()*13],puffs,a:.75+r()*.25})}return out})();
+function drawClouds(ctx,c,P,now,t,fixed){if(document.documentElement.dataset.sky!=='day')return;
+  const S=fixed?[0,0,0]:now.S,list=[];
+  for(const cl of CLOUDS){let x=cl.p[0]-S[0]+t*.12,z=cl.p[2]-(fixed?0:S[2]*.5);x=((x+15)%30+30)%30-15;const y=cl.p[1]-(fixed?0:S[1]*.6),ctr=[x,y,z],zz=projZ(ctr,c);if(zz<-4.2)continue;list.push([zz,ctr,cl])}
+  list.sort((a,b)=>b[0]-a[0]);
+  for(const [zz,ctr,cl] of list){const fade=Math.min(1,(zz+4.2)/1.5)*Math.min(1,Math.max(0,(15-Math.abs(ctr[0]))/3));if(fade<=0)continue;
+    for(const pf of cl.puffs){const q=add(ctr,[pf[0],pf[1],pf[2]]),a=P(q),b=P(add(q,[0,pf[3],0])),R=Math.hypot(b[0]-a[0],b[1]-a[1]);if(!(R>1&&R<900))continue;
+      const sh=ctx.createRadialGradient(a[0],a[1]+R*.25,0,a[0],a[1]+R*.25,R*1.05);sh.addColorStop(0,`rgba(160,182,205,${.28*cl.a*fade})`);sh.addColorStop(1,'rgba(170,190,210,0)');ctx.fillStyle=sh;ctx.beginPath();ctx.arc(a[0],a[1]+R*.25,R*1.05,0,TAU);ctx.fill();
+      const g=ctx.createRadialGradient(a[0]-R*.2,a[1]-R*.25,0,a[0],a[1],R);g.addColorStop(0,`rgba(255,255,255,${.85*cl.a*fade})`);g.addColorStop(.55,`rgba(252,253,255,${.5*cl.a*fade})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(a[0],a[1],R,0,TAU);ctx.fill()}}}const PAN={x:0,y:0,z:1,box:null};
 function render(cv,b,t,cam,o){
   const [ctx,W,H]=fit(cv);if(!W||!H)return;
   const c={yaw:cam.yaw,pitch:cam.pitch,dist:7,scale:Math.min(cam.fw||W,H*.82)*cam.zoom,cx:cam.cx!=null?cam.cx:W*cam.ox,cy:H*cam.oy};
   if(cam.pan){c.cx+=PAN.x;c.cy+=PAN.y;c.scale*=PAN.z}
   const now=state(b,t),fixed=o.frame==='fixed',P=v=>proj(v,c);
   const baseOf=st=>fixed?[0,0,0]:sub(st.S,now.S),tipOf=st=>fixed?st.tipB:st.tipW;
+  if(cam.pan)drawClouds(ctx,c,P,now,t,fixed);
   ctx.lineJoin=ctx.lineCap='round';
   // stroke-angle fan (step iii)
   if(o.fan){const o2=P([0,0,0]);let mn=1e9,mx=-1e9,ang=[],R=0;const n=90;
