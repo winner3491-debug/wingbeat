@@ -273,6 +273,37 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 .clean .side>:not(.tiles):not(.hide-t){display:none!important}
 .clean .side{background:none;bottom:auto}
 .clean .ruler{left:30px!important}
+
+/* v41 day / night */
+.rgt{display:flex;align-items:center;gap:18px}
+.skyt{pointer-events:auto;display:flex;padding:3px;border-radius:999px;border:1px solid var(--hair2);background:rgba(17,18,19,.5);font-size:11.5px}
+.skyt span{padding:4px 11px;border-radius:999px;color:var(--mute);transition:background .25s,color .25s}
+:root:not([data-sky=day]) .skyt [data-v=night],:root[data-sky=day] .skyt [data-v=day]{background:var(--ink);color:var(--bg)}
+html,body,.dots,#stage{transition:background-color .6s}
+:root[data-sky=day]{color-scheme:light;--bg:#e9f0f5;--panel:#f4f7f9;--ink:#1f262e;--mute:#66717b;--hair:rgba(31,38,46,.1);--hair2:rgba(31,38,46,.2)}
+:root[data-sky=day] body,:root[data-sky=day] .dots{background-color:#dfe9f1;background-image:radial-gradient(rgba(31,38,46,.07) 1px,transparent 1.3px),radial-gradient(ellipse at 60% 30%,rgba(255,255,255,.75),transparent 60%),linear-gradient(180deg,#a9c8e2 0%,#c9dcec 38%,#e6eef4 72%,#f1f4f6 100%);background-size:22px 22px,100% 100%,100% 100%}
+:root[data-sky=day] .side{background:linear-gradient(90deg,rgba(241,245,248,.78) 0%,rgba(241,245,248,.5) 70%,rgba(241,245,248,0) 100%)}
+:root[data-sky=day] .clean .side{background:none}
+:root[data-sky=day] .side .tile{border-color:rgba(31,38,46,.14);color:#4d5862}
+:root[data-sky=day] .side .tile:hover{background:rgba(31,38,46,.06);color:var(--ink)}
+:root[data-sky=day] .side .tile[aria-pressed=true],:root[data-sky=day] .side .tile[aria-pressed=true]:hover{background:#1f262e;color:#f1f4f6;border-color:#1f262e}
+:root[data-sky=day] .side .fig,:root[data-sky=day] .note,:root[data-sky=day] .ctl{border-top-color:rgba(31,38,46,.12)}
+:root[data-sky=day] .cap{color:#3a434c}
+:root[data-sky=day] .ideal b{color:#1f262e}
+:root[data-sky=day] .ico{border-color:rgba(31,38,46,.18)}
+:root[data-sky=day] .ico[aria-expanded=true]{background:#1f262e;color:#f1f4f6}
+:root[data-sky=day] .sw,:root[data-sky=day] .pill,:root[data-sky=day] .sbot #steps{border-color:rgba(31,38,46,.16)}
+:root[data-sky=day] .sw i{background:rgba(31,38,46,.2)}
+:root[data-sky=day] .sbot .step[aria-selected=true],:root[data-sky=day] .go2{background:#1f262e;color:#f1f4f6}
+:root[data-sky=day] kbd{background:rgba(31,38,46,.08)}
+:root[data-sky=day] .sl input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#1f262e var(--p),rgba(31,38,46,.15) var(--p))}
+:root[data-sky=day] .sl input::-moz-range-track{background:linear-gradient(90deg,#1f262e var(--p),rgba(31,38,46,.15) var(--p))}
+:root[data-sky=day] .sl output,:root[data-sky=day] .sl{color:#4d5862}
+:root[data-sky=day] .menu,:root[data-sky=day] .skyt{background:rgba(255,255,255,.55)}
+:root[data-sky=day] .menu [aria-current=true]{background:#1f262e;color:#f1f4f6}
+:root[data-sky=day] #stage::after{background:radial-gradient(ellipse 75% 65% at 52% 42%,transparent 45%,rgba(120,150,180,.25) 100%)}
+:root[data-sky=day] .hud.bar,:root[data-sky=day] .bar{background:none}
+:root[data-sky=day] #stage .drag{background:rgba(255,255,255,.6)}
 </style>
 </head>
 <body class="dots">
@@ -280,7 +311,7 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 <div class="hud bar">
   <span class="mark">WINGBEAT<span>날갯짓의 궤적</span></span>
   <nav class="menu" id="menu"><button data-p="obs" aria-current="true">관측</button><button data-p="cmp">비교</button></nav><button class="chip" id="chip" aria-pressed="false" hidden>VIEW</button>
-  <span class="clock"><span class="lab">LOCAL TIME</span><b id="clock">SEL 00:00</b></span>
+  <span class="rgt"><button class="skyt" id="skyt" aria-label="낮 하늘로 바꾸기"><span data-v="night">밤</span><span data-v="day">낮</span></button><span class="clock"><span class="lab">LOCAL TIME</span><b id="clock">SEL 00:00</b></span></span>
 </div>
 
 <div id="stage" class="dots"><canvas id="cv" aria-label="선택한 새의 날개 궤적 애니메이션"></canvas><div class="drag" id="drag">드래그해서 돌려 보기 · 스크롤로 확대 · 더블클릭으로 원래대로</div></div>
@@ -398,14 +429,14 @@ function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let
   return{S,tipB:tb,tipW:[tb[0]*d[0]+tb[2]*l[0],tb[1],tb[0]*d[2]+tb[2]*l[2]],w:k.w,cyc:k.cyc,d,l,up:k.up,pt}}
 function projZ(p,c){const ca=Math.cos(c.yaw),sa=Math.sin(c.yaw),z1=p[0]*sa+p[2]*ca,cb=Math.cos(c.pitch),sb=Math.sin(c.pitch);return p[1]*sb+z1*cb}
 function proj(p,c){const ca=Math.cos(c.yaw),sa=Math.sin(c.yaw),x1=p[0]*ca-p[2]*sa,z1=p[0]*sa+p[2]*ca,cb=Math.cos(c.pitch),sb=Math.sin(c.pitch),y1=p[1]*cb-z1*sb,z2=p[1]*sb+z1*cb,s=c.dist/(c.dist+z2);return[c.cx+x1*s*c.scale,c.cy-y1*s*c.scale]}
-const STOPS=[[79,107,237],[155,107,216],[239,111,154],[246,166,95]],INK='233,230,223';
+const STOPS=[[79,107,237],[155,107,216],[239,111,154],[246,166,95]];let INK='233,230,223',BGC0='17,18,19';let BGC=BGC0,GLOW='233,230,223';
 function col(t){const x=t*(STOPS.length-1),i=Math.min(STOPS.length-2,Math.floor(x)),f=x-i,a=STOPS[i],b=STOPS[i+1];return a.map((v,j)=>Math.round(v+(b[j]-v)*f))}
 function fit(cv){const r=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(cv.width!==Math.round(W*r)||cv.height!==Math.round(H*r)){cv.width=Math.round(W*r);cv.height=Math.round(H*r)}const x=cv.getContext('2d');x.setTransform(r,0,0,r,0,0);x.clearRect(0,0,W,H);return[x,W,H]}
 const FONT='"Pretendard",system-ui,sans-serif';
 const DUST=Array.from({length:260},(_,i)=>{const h=n=>{n=Math.sin(n*12.9898+i*78.233)*43758.5453;return n-Math.floor(n)};return[h(1)*16-8,h(2)*5-1.1,h(3)*16-8,.4+h(4)*.9]});
 function space(ctx,P,W,H,S){
   const hz=P([0,-1.15,-40]),top=hz[1]-H*.35,g=ctx.createLinearGradient(0,top,0,hz[1]+H*.25);
-  g.addColorStop(0,'rgba(233,230,223,0)');g.addColorStop(.6,'rgba(233,230,223,.03)');g.addColorStop(.72,'rgba(233,230,223,.055)');g.addColorStop(1,'rgba(233,230,223,0)');
+  g.addColorStop(0,`rgba(${INK},0)`);g.addColorStop(.6,`rgba(${INK},.03)`);g.addColorStop(.72,`rgba(${INK},.055)`);g.addColorStop(1,`rgba(${INK},0)`);
   ctx.fillStyle=g;ctx.fillRect(0,top,W,H*.6);
   const Y=-1.15,R=14,ox=S[0]-2*Math.floor(S[0]/2),oz=S[2]-2*Math.floor(S[2]/2);ctx.lineWidth=.8;
   const seg=(a,b)=>{const n=28;for(let i=0;i<n;i++){const u0=i/n,u1=(i+1)/n,q0=[a[0]+(b[0]-a[0])*u0,Y,a[2]+(b[2]-a[2])*u0],q1=[a[0]+(b[0]-a[0])*u1,Y,a[2]+(b[2]-a[2])*u1];
@@ -421,7 +452,7 @@ const CL={};function callout(ctx,p,dir,dy,len,t1,t2,W,H){
   const ex=c.x,ey=c.y,mx=ex-dir*Math.min(40,Math.abs(ex-p[0])*.4);
   ctx.strokeStyle=`rgba(${INK},.75)`;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(mx,ey);ctx.lineTo(ex,ey);ctx.stroke();
   ctx.fillStyle='#111213';ctx.fillRect(p[0]-4,p[1]-4,8,8);ctx.strokeRect(p[0]-4,p[1]-4,8,8);ctx.fillStyle=`rgb(${INK})`;ctx.fillRect(p[0]-1.5,p[1]-1.5,3,3);
-  ctx.textAlign=dir>0?'left':'right';ctx.font=`500 13px ${FONT}`;const tw=Math.max(ctx.measureText(t2).width,40)+12;ctx.fillStyle='rgba(17,18,19,.82)';ctx.fillRect(dir>0?ex-6:ex-tw+6,ey-22,tw,44);ctx.textBaseline='bottom';ctx.font=`600 10.5px ${FONT}`;ctx.fillStyle=`rgba(${INK},.55)`;ctx.fillText(t1,ex,ey-5);
+  ctx.textAlign=dir>0?'left':'right';ctx.font=`500 13px ${FONT}`;const tw=Math.max(ctx.measureText(t2).width,40)+12;ctx.fillStyle=`rgba(${BGC},.82)`;ctx.fillRect(dir>0?ex-6:ex-tw+6,ey-22,tw,44);ctx.textBaseline='bottom';ctx.font=`600 10.5px ${FONT}`;ctx.fillStyle=`rgba(${INK},.55)`;ctx.fillText(t1,ex,ey-5);
   ctx.textBaseline='top';ctx.font=`500 13px ${FONT}`;ctx.fillStyle=`rgb(${INK})`;ctx.fillText(t2,ex,ey+5)}
 
 
@@ -464,10 +495,10 @@ function drawBird(ctx,P,now,fixed){
     const pt=v=>P(W3(add(o,v)));
     const s0=pt([0,0,0]),s1=pt(mul(sp,L)),s2=pt(add(mul(sp,L*.5),mul(ch,.2)));
     let cr=(s1[0]-s0[0])*(s2[1]-s0[1])-(s1[1]-s0[1])*(s2[0]-s0[0]);if(side<0)cr=-cr;const front=cr>0;
-    const ink=front?'rgba(233,230,223,.92)':'rgba(233,230,223,.5)';
+    const ink=front?`rgba(${INK},.92)`:`rgba(${INK},.5)`;
     // inner covert plate
     quad(ctx,[pt([0,0,0]),pt(mul(sp,L*.45)),pt(add(mul(sp,L*.38),mul(ch,.14))),pt(mul(ch,.13))]);
-    if(front){ctx.fillStyle=ink;ctx.fill()}else{ctx.fillStyle='rgba(17,18,19,.6)';ctx.fill();ctx.strokeStyle=ink;ctx.lineWidth=.8;ctx.stroke()}
+    if(front){ctx.fillStyle=ink;ctx.fill()}else{ctx.fillStyle=`rgba(${BGC},.6)`;ctx.fill();ctx.strokeStyle=ink;ctx.lineWidth=.8;ctx.stroke()}
     // feather slats: roots along the arm, tips along a trailing arc ending at the wingtip
     const K=15;for(let k=0;k<K;k++){const u=k/(K-1);
       const r=mul(sp,L*(0.08+0.5*u)),e=add(mul(sp,L*(0.22+0.78*Math.pow(u,0.85))),add(mul(ch,(0.36*(1-u*u)+0.03)*(0.6+0.4*f)),mul(nn,-0.04*u*side)));
@@ -475,18 +506,18 @@ function drawBird(ctx,P,now,fixed){
       const w0=0.022,w1=0.012,w2=0.002;
       quad(ctx,[pt(add(r,mul(wv,w0))),pt(add(m,mul(wv,w1))),pt(add(e,mul(wv,w2))),pt(add(e,mul(wv,-w2))),pt(add(m,mul(wv,-w1))),pt(add(r,mul(wv,-w0)))]);
       if(front){ctx.fillStyle=ink;ctx.fill()}else{ctx.strokeStyle=ink;ctx.lineWidth=.6;ctx.stroke()}}
-    const s3=pt(mul(sp,L*.6));ctx.strokeStyle='rgb(233,230,223)';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(s0[0],s0[1]);ctx.lineTo(s3[0],s3[1]);ctx.stroke();
+    const s3=pt(mul(sp,L*.6));ctx.strokeStyle=`rgb(${INK})`;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(s0[0],s0[1]);ctx.lineTo(s3[0],s3[1]);ctx.stroke();
   };
   // body + tail
   const bp=v=>P(W3(v)),bw=0.075;
   const head=mul(ax,.4),tail=mul(ax,-.42);
   const sil=[bp(head),bp(add(mul(ax,.12),mul(lat,bw))),bp(add(mul(ax,-.2),mul(lat,bw*.8))),bp(tail),bp(add(mul(ax,-.2),mul(lat,-bw*.8))),bp(add(mul(ax,.12),mul(lat,-bw)))];
   const tailF=()=>{for(let k=0;k<9;k++){const a=-0.4+0.8*k/8,dir=nrm(add(mul(ax,-Math.cos(a)),mul(lat,Math.sin(a)))),r=mul(ax,-.3),e=add(r,mul(dir,.32));
-    const q1=bp(r),q2=bp(e);ctx.strokeStyle='rgba(233,230,223,.7)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(q1[0],q1[1]);ctx.lineTo(q2[0],q2[1]);ctx.stroke()}};
+    const q1=bp(r),q2=bp(e);ctx.strokeStyle=`rgba(${INK},.7)`;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(q1[0],q1[1]);ctx.lineTo(q2[0],q2[1]);ctx.stroke()}};
   const L1=P(W3([0,0,1])),L2=P(W3([0,0,-1]));const nearRight=L1[1]>=L2[1];
   tailF();
   wing(nearRight?-1:1);
-  quad(ctx,sil);ctx.fillStyle='rgba(233,230,223,.92)';ctx.fill();
+  quad(ctx,sil);ctx.fillStyle=`rgba(${INK},.92)`;ctx.fill();
   const hp=bp(head);ctx.beginPath();ctx.arc(hp[0],hp[1],3.2,0,TAU);ctx.fill();
   wing(nearRight?1:-1);
 }
@@ -583,7 +614,7 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   g.cam.projectionMatrix.set(2*f/W,0,1-2*c.cx/W,0, 0,2*f/H,2*c.cy/H-1,0, 0,0,-(fr+n)/(fr-n),-2*fr*n/(fr-n), 0,0,-1,0);g.cam.projectionMatrixInverse.copy(g.cam.projectionMatrix).invert();
   g.cam.updateMatrixWorld=()=>{};
   g.rd.render(g.scene,g.cam);const o0=c,pc=[c.cx,c.cy],R=c.scale*1.5,gr=ctx.createRadialGradient(pc[0],pc[1],0,pc[0],pc[1],R);
-  gr.addColorStop(0,'rgba(233,230,223,.11)');gr.addColorStop(.5,'rgba(233,230,223,.04)');gr.addColorStop(1,'rgba(233,230,223,0)');ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
+  gr.addColorStop(0,`rgba(${GLOW},.11)`);gr.addColorStop(.5,`rgba(${GLOW},.04)`);gr.addColorStop(1,`rgba(${GLOW},0)`);ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
   ctx.save();try{ctx.filter='drop-shadow(0 0 1px rgba(245,242,235,.55)) drop-shadow(0 0 14px rgba(245,242,235,.22))'}catch(e){}ctx.drawImage(g.rd.domElement,0,0,W,H);ctx.restore();return true}
 
 let LASTMESH=null;const PAN={x:0,y:0,z:1,box:null};
@@ -598,8 +629,8 @@ function render(cv,b,t,cam,o){
   if(o.fan){const o2=P([0,0,0]);let mn=1e9,mx=-1e9,ang=[],R=0;const n=90;
     for(let i=0;i<n;i++){const st=state(b,t-b.cyc+b.cyc*i/n),q=P(st.tipB),a=Math.atan2(q[1]-o2[1],q[0]-o2[0]);ang.push(a);R=Math.max(R,Math.hypot(q[0]-o2[0],q[1]-o2[1]))}
     const ref=ang[0],rel=ang.map(a=>{let d=a-ref;while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;return d});mn=Math.min(...rel)+ref;mx=Math.max(...rel)+ref;
-    ctx.fillStyle='rgba(233,230,223,.04)';ctx.beginPath();ctx.moveTo(o2[0],o2[1]);ctx.arc(o2[0],o2[1],R*1.08,mn,mx);ctx.closePath();ctx.fill();
-    ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(233,230,223,.3)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=`rgba(${INK},.04)`;ctx.beginPath();ctx.moveTo(o2[0],o2[1]);ctx.arc(o2[0],o2[1],R*1.08,mn,mx);ctx.closePath();ctx.fill();
+    ctx.setLineDash([4,4]);ctx.strokeStyle=`rgba(${INK},.3)`;ctx.lineWidth=1;ctx.stroke();
     for(const k of [.45,.75]){ctx.beginPath();ctx.arc(o2[0],o2[1],R*k,mn,mx);ctx.stroke()}ctx.setLineDash([]);
     let a3=[];for(let i=0;i<n;i++){const tb=state(b,b.cyc*i/n).tipB;a3.push(b.mode==='hover'?Math.atan2(tb[0],tb[2]):Math.atan2(tb[1],Math.hypot(tb[0],tb[2])))}
     o.amp=Math.round((Math.max(...a3)-Math.min(...a3))*180/Math.PI);o.fanP=[o2[0]+Math.cos(mx)*R*1.08,o2[1]+Math.sin(mx)*R*1.08]}
@@ -623,13 +654,13 @@ function render(cv,b,t,cam,o){
   const A3=[],B3=[],A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
   const M=A.length;
   // faint body so it still reads as a surface
-  for(let j=0;j<M-1;j++){ctx.fillStyle=`rgba(233,230,223,${.06*o.alpha*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
+  for(let j=0;j<M-1;j++){ctx.fillStyle=`rgba(${INK},${.06*o.alpha*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
   // string lines along the sweep (root → tip), like stretched threads
   const L=26,CH=Math.max(3,Math.round(M/90));ctx.lineWidth=.7;ctx.lineJoin='round';
   for(let k=0;k<=L;k++){const f=k/L,edge=k===0||k===L,pts=new Array(M);for(let j=0;j<M;j++){const a3=A3[j],b3=B3[j];pts[j]=P([a3[0]+(b3[0]-a3[0])*f,a3[1]+(b3[1]-a3[1])*f,a3[2]+(b3[2]-a3[2])*f])}
     const w=edge?1.4:.9,base=.38+.55*Math.pow(f,1.1);ctx.lineWidth=w;
     for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],fd=ag<.55?Math.pow(ag/.55,1.8):1,al=Math.min(1,(edge?.95:base)*fd*o.alpha);
-      ctx.strokeStyle=`rgba(236,232,224,${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
+      ctx.strokeStyle=`rgba(${INK},${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
   LASTMESH={A3,B3,id:b.id};
   if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach(q=>{if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
   const N2=M-1;
@@ -741,21 +772,21 @@ function drawCell(cv){{const [x,W,H]=cfit(cv);if(!W)return;const b=BIRDS[+cv.dat
       x.globalAlpha=k===K-1?1:.35+.5*k/(K-1);x.drawImage(im,q[0]-w*.5,q[1]-hh*.62,w,hh);x.globalAlpha=1}
   }else if(r===1){// stroke angle dial
     const cx=W/2,cy=H/2,R=Math.min(W,H)/2-12,st=stats(b),hv=b.mode==='hover';
-    x.strokeStyle='rgba(233,230,223,.16)';x.lineWidth=1;x.beginPath();x.arc(cx,cy,R,0,TAU);x.stroke();x.beginPath();x.arc(cx,cy,R*.62,0,TAU);x.stroke();
+    x.strokeStyle=`rgba(${INK},.16)`;x.lineWidth=1;x.beginPath();x.arc(cx,cy,R,0,TAU);x.stroke();x.beginPath();x.arc(cx,cy,R*.62,0,TAU);x.stroke();
     x.setLineDash([2,4]);x.beginPath();x.moveTo(cx-R,cy);x.lineTo(cx+R,cy);x.stroke();x.setLineDash([]);
     const a0=hv?st.mn-Math.PI/2:-st.mx,a1=hv?st.mx-Math.PI/2:-st.mn;x.fillStyle=`rgba(${ACC},.28)`;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,R*.95,a0,a1);x.closePath();x.fill();
     x.strokeStyle=`rgb(${ACC})`;x.lineWidth=1.4;[a0,a1].forEach(a=>{x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*R*.95,cy+Math.sin(a)*R*.95);x.stroke()});
-    x.strokeStyle='rgba(233,230,223,.75)';x.lineWidth=1.1;x.beginPath();for(let i=0;i<=160;i++){const tb=state(b,b.cyc*i/160).tipB,Q=hv?[cx+tb[0]*R*.9,cy-tb[2]*R*.9]:[cx+tb[2]*R*.9,cy-tb[1]*R*.9];i?x.lineTo(Q[0],Q[1]):x.moveTo(Q[0],Q[1])}x.stroke();
-    x.fillStyle='rgba(233,230,223,.95)';x.beginPath();x.arc(cx,cy,2.5,0,TAU);x.fill();
+    x.strokeStyle=`rgba(${INK},.75)`;x.lineWidth=1.1;x.beginPath();for(let i=0;i<=160;i++){const tb=state(b,b.cyc*i/160).tipB,Q=hv?[cx+tb[0]*R*.9,cy-tb[2]*R*.9]:[cx+tb[2]*R*.9,cy-tb[1]*R*.9];i?x.lineTo(Q[0],Q[1]):x.moveTo(Q[0],Q[1])}x.stroke();
+    x.fillStyle=`rgba(${INK},.95)`;x.beginPath();x.arc(cx,cy,2.5,0,TAU);x.fill();
     {const tn=state(b,T).tipB,Q=hv?[cx+tn[0]*R*.9,cy-tn[2]*R*.9]:[cx+tn[2]*R*.9,cy-tn[1]*R*.9];x.globalAlpha=dim;
      for(let k=6;k>=1;k--){const tp=state(b,T-b.cyc*k*.025).tipB,q=hv?[cx+tp[0]*R*.9,cy-tp[2]*R*.9]:[cx+tp[2]*R*.9,cy-tp[1]*R*.9];x.fillStyle=`rgba(${ACC},${.5*(1-k/7)})`;x.beginPath();x.arc(q[0],q[1],3,0,TAU);x.fill()}
      x.strokeStyle='rgba(245,242,235,.95)';x.lineWidth=1.6;x.beginPath();x.moveTo(cx,cy);x.lineTo(Q[0],Q[1]);x.stroke();x.fillStyle='#f5f2eb';x.beginPath();x.arc(Q[0],Q[1],4,0,TAU);x.fill();x.globalAlpha=1}
-    x.font=`500 13px ${FONT}`;x.textAlign='left';x.fillStyle='rgb(233,230,223)';x.fillText(`${st.amp}°`,8,16);
-    x.font=`400 10.5px ${FONT}`;x.fillStyle='rgba(233,230,223,.5)';x.fillText(hv?'위에서 본 앞뒤 스윙':'앞에서 본 위아래',8,H-6);
+    x.font=`500 13px ${FONT}`;x.textAlign='left';x.fillStyle=`rgb(${INK})`;x.fillText(`${st.amp}°`,8,16);
+    x.font=`400 10.5px ${FONT}`;x.fillStyle=`rgba(${INK},.5)`;x.fillText(hv?'위에서 본 앞뒤 스윙':'앞에서 본 위아래',8,H-6);
   }else if(r===2){const im=TOPIMG[b.id];if(!im.complete||!im.naturalWidth)return;const sp=b.id==='vulture'?1:b.id==='goose'?.86:b.id==='hawk'?.62:b.id==='woodpecker'?.5:.42,w=W*.94*sp,hh=w*im.naturalHeight/im.naturalWidth;
     x.drawImage(im,(W-w)/2,(H-hh)/2,w,hh);
   }else{const span=4,n=Math.round(W);for(let i=0;i<n;i++){const st=state(b,span*i/n);if(st.w>.5){x.fillStyle=`rgba(${ACC},.18)`;x.fillRect(i,0,1.2,H)}}
-    x.strokeStyle='rgba(233,230,223,.8)';x.lineWidth=1;x.beginPath();for(let i=0;i<=n;i++){const tb=state(b,span*i/n).tipB,v=(b.mode==='hover'?tb[0]:tb[1])/1.05,y=H/2-v*(H/2-4);i?x.lineTo(i,y):x.moveTo(0,y)}x.stroke();
+    x.strokeStyle=`rgba(${INK},.8)`;x.lineWidth=1;x.beginPath();for(let i=0;i<=n;i++){const tb=state(b,span*i/n).tipB,v=(b.mode==='hover'?tb[0]:tb[1])/1.05,y=H/2-v*(H/2-4);i?x.lineTo(i,y):x.moveTo(0,y)}x.stroke();
     const ph=((T%span)+span)%span,px=ph/span*W,tb=state(b,ph).tipB,v=(b.mode==='hover'?tb[0]:tb[1])/1.05;x.globalAlpha=dim;x.fillStyle='rgba(245,242,235,.9)';x.fillRect(px-.5,0,1,H);x.beginPath();x.arc(px,H/2-v*(H/2-4),3.5,0,TAU);x.fill();x.globalAlpha=1}
 }}
 const roCmp=new ResizeObserver(()=>cmpOpen&&drawCmp());
@@ -787,6 +818,8 @@ window.__setC=setC;window.__showC=(k,v)=>{const o=$('o-'+k),t=fmtC(k,Math.round(
 ['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
 function resetC(){resetLog();setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
 $('reset').onclick=resetC;resetC();
+function setSky(day){document.documentElement.dataset.sky=day?'day':'night';INK=day?'38,46,56':'233,230,223';GLOW=day?'255,255,255':'233,230,223';BGC=day?'236,242,247':BGC0;$('skyt').setAttribute('aria-label',day?'밤 하늘로 바꾸기':'낮 하늘로 바꾸기');try{localStorage.setItem('wb-sky',day?'day':'night')}catch(e){}}
+$('skyt').onclick=()=>setSky(document.documentElement.dataset.sky!=='day');try{if(localStorage.getItem('wb-sky')==='day')setSky(true)}catch(e){}
 function toggleClean(){const c=document.body.classList.toggle('clean');$('t-hide').setAttribute('aria-pressed',c);$('t-hide').querySelector('span').textContent=c?'정보 보기':'정보 숨기기'}
 $('t-hide').onclick=toggleClean;document.addEventListener('keydown',e=>{if((e.key==='h'||e.key==='H'||e.key==='ㅗ')&&e.target.tagName!=='INPUT')toggleClean()});
 $('t-ctl').onclick=()=>{const c=$('pn-ctl'),o=c.hidden;c.hidden=!o;$('pn-info').hidden=o;$('t-ctl').setAttribute('aria-expanded',o);$('t-ctl').setAttribute('aria-label',o?'궤적 조절 닫기':'궤적 조절 열기')};
