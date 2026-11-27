@@ -482,8 +482,10 @@ function drawSlat(ctx,P,now,fixed,c){
     for(let i=0;i<10;i++){const f0=i/10,f1=(i+1)/10,p0=at(lerp(S0,T,f0),U,.05*Math.sin(Math.PI*f0)),p1=at(lerp(S0,T,f1),U,.05*Math.sin(Math.PI*f1)),th=.03*(1-f0*.7);
       quad(add(p0,mul(F,th)),add(p1,mul(F,th*.8)),add(p1,mul(F,-th*.8)),add(p0,mul(F,-th)),1)}};
   // body: tapered slats across the length
-  const body=()=>{const N=24,cl=[],rr=[];for(let i=0;i<N;i++){const f=i/(N-1),x=.44-.92*f,r=.068*Math.pow(Math.sin(Math.PI*Math.min(1,.06+f*.98)),.7)+.008;cl.push(at([0,0,0],F,x,U,.02*Math.sin(Math.PI*f)));rr.push(r)}
-    parts.push({z:Z(cl[N>>1]),body:true,cl,rr})
+  const body=()=>{const N=20,K=9,L0=.44,L1=-.48;
+    for(let k=0;k<K;k++){const zf=(k/(K-1))*2-1,cz=Math.sqrt(Math.max(0,1-zf*zf)),zo=zf*.075,top=[],bot=[];
+      for(let i=0;i<N;i++){const f=i/(N-1),x=L0+(L1-L0)*f,prof=Math.pow(Math.sin(Math.PI*Math.min(1,.04+f*.98)),.65),hh=(.075*prof+.004)*cz,yc=.015*Math.sin(Math.PI*f);top.push(at([0,0,0],F,x,U,yc+hh,Lt,zo));bot.push(at([0,0,0],F,x,U,yc-hh*.8,Lt,zo))}
+      parts.push({z:Z(at([0,0,0],Lt,zo)),pts:top.concat(bot.reverse()),sh:.78+.22*cz,poly:true})}
     // beak
     const h=at([0,0,0],F,.42,U,.02),tip=at([0,0,0],F,.56,U,.0);quad(add(h,mul(U,.02)),tip,tip,add(h,mul(U,-.02)),.95);
     // tail fan
@@ -492,8 +494,8 @@ function drawSlat(ctx,P,now,fixed,c){
   parts.sort((x,y)=>y.z-x.z);
   for(const q of parts){if(q.body){const S=q.cl.map(PJ),Lp=[],Rp=[];for(let i=0;i<S.length;i++){const a=S[Math.max(0,i-1)],b2=S[Math.min(S.length-1,i+1)],tx=b2[0]-a[0],ty=b2[1]-a[1],m=Math.hypot(tx,ty)||1,r=q.rr[i]*SC*c.scale*.9;Lp.push([S[i][0]-ty/m*r,S[i][1]+tx/m*r]);Rp.push([S[i][0]+ty/m*r,S[i][1]-tx/m*r])}
       const g=ctx.createLinearGradient(Lp[12][0],Lp[12][1],Rp[12][0],Rp[12][1]);g.addColorStop(0,'rgb(236,240,242)');g.addColorStop(1,'rgb(150,158,162)');ctx.fillStyle=g;ctx.beginPath();Lp.forEach((q2,i)=>i?ctx.lineTo(q2[0],q2[1]):ctx.moveTo(q2[0],q2[1]));for(let i=Rp.length-1;i>=0;i--)ctx.lineTo(Rp[i][0],Rp[i][1]);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(30,34,38,.4)';ctx.lineWidth=.6;ctx.stroke();continue}
-    const pp=q.pts.map(PJ),v=Math.round(150+95*q.sh);ctx.fillStyle=`rgb(${v-6},${v},${v+4})`;ctx.strokeStyle='rgba(30,34,38,.55)';ctx.lineWidth=.6;
-    ctx.beginPath();ctx.moveTo(pp[0][0],pp[0][1]);for(let i=1;i<4;i++)ctx.lineTo(pp[i][0],pp[i][1]);ctx.closePath();ctx.fill();ctx.stroke()}}
+    if(!q.pts)continue;const pp=q.pts.map(PJ),v=Math.round(150+95*q.sh);ctx.fillStyle=`rgb(${v-6},${v},${v+4})`;ctx.strokeStyle='rgba(30,34,38,.55)';ctx.lineWidth=.6;
+    ctx.beginPath();ctx.moveTo(pp[0][0],pp[0][1]);for(let i=1;i<pp.length;i++)ctx.lineTo(pp[i][0],pp[i][1]);ctx.closePath();ctx.fill();ctx.stroke()}}
 function drawBird(ctx,P,now,fixed){
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l;
   const W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
