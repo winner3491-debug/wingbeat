@@ -330,7 +330,8 @@ const KIN={
     return{S:[1.4*t,-0.36*Math.cos(TAU*(u-0.08)),0],tip:[tb[0]*cp-tb[1]*snp,tb[0]*snp+tb[1]*cp,tb[2]],w,cyc:u,ph:n*u/fl,pt}},
   hover(t){const T=0.7,p=TAU*t/T;return{S:[0,0,0],tip:tipVec(0.18*Math.sin(2*p)+0.1,1.0*Math.sin(p),1),w:1,cyc:((t/T)%1+1)%1,up:true,ph:t/T}},
   soar(t){const P=7,th=TAU*t/P,R=2.4,b=0.28,f=1.15,dih=0.06+0.03*Math.sin(TAU*t/1.3);
-    return{S:[R*Math.sin(th),0.22*t,R*(1-Math.cos(th))],tip:[0,f*(dih-Math.sin(b)),f*Math.cos(b)],w:0,cyc:((t/P)%1+1)%1,d:[Math.cos(th),0,Math.sin(th)],l:[-Math.sin(th),0,Math.cos(th)]}},
+    const u=((t/P)%1+1)%1,ft=u*P-1.0,FD=1.5,fw=ft>0&&ft<FD?Math.sin(Math.PI*ft/FD)**.6:0,fp=TAU*2*Math.max(0,ft)/FD,e0=Math.asin(dih-Math.sin(b)),e=e0+fw*(0.62*Math.cos(fp)+0.12),sw=fw*0.16*Math.sin(fp),ff=f*(1-0.12*fw*Math.max(0,-Math.sin(fp)));
+    return{S:[R*Math.sin(th),0.22*t,R*(1-Math.cos(th))],tip:[ff*Math.cos(e)*Math.sin(sw),ff*Math.sin(e),ff*Math.cos(e)*Math.cos(sw)],w:fw>.05?1:0,cyc:((t/P)%1+1)%1,d:[Math.cos(th),0,Math.sin(th)],l:[-Math.sin(th),0,Math.cos(th)]}},
   flapglide(t){const C=2.6,u=((t/C)%1+1)%1,fl=0.42,w=sm(u/0.05)*sm((fl-u)/0.05),p=TAU*3*u/fl;
     const y=u<fl?-0.15+0.3*sm(u/fl):0.15-0.3*sm((u-fl)/(1-fl));
     return{S:[1.6*t,y,0],tip:tipVec(w*0.7*Math.sin(p)+(1-w)*0.05,w*0.2*Math.cos(p),1),w,cyc:u,ph:3*u/fl}}
