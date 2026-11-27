@@ -129,6 +129,30 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 .evp li.est::after{content:attr(data-tag);grid-column:2;justify-self:start;font-size:10px;border:1px solid rgba(201,180,143,.5);color:#c9b48f;padding:0 6px;margin-top:2px}
 .evs{margin:8px 0 0;font-size:11px;color:var(--mute)}
 @media(min-width:901px){.evp{position:fixed;left:28px;top:262px;margin:0;z-index:4;max-height:calc(100vh - 400px);overflow:auto}}
+
+.side{position:fixed;left:0;top:76px;bottom:0;width:392px;overflow-y:auto;overflow-x:hidden;padding:8px 28px 24px;z-index:3;display:flex;flex-direction:column;gap:18px;background:linear-gradient(90deg,rgba(17,18,19,.96) 70%,rgba(17,18,19,.82));border-right:1px solid var(--hair);scrollbar-width:thin}
+.side .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.side .tile{aspect-ratio:auto;height:58px;gap:4px;font-size:9.5px;letter-spacing:.04em;padding:0 2px}.side .tile svg{width:30px;height:16px}.side .tile small{display:none}
+.side h1{font-size:40px}
+@media(max-height:860px) and (min-width:901px){.side #dm,.side .dmc,.ideal{display:none}.side .cap{font-size:13px;line-height:1.65}}
+.side .fig,.side .cap,.side .src,.hud.left #dm,.side #dm{width:100%}
+.side #dm{display:block;height:40px;margin-top:14px}.side .dmc{display:block;font-size:11px;color:var(--mute);margin-top:6px}
+.vid{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hair2);padding-bottom:2px}.vid:hover{border-color:var(--ink)}
+.ideal{margin:10px 0 0;font-size:11.5px;line-height:1.6;color:var(--mute);word-break:keep-all}
+.ctl{border-top:1px solid var(--hair2);padding-top:16px}
+.ctlh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ctlh b{font-size:14px;font-weight:600}
+.mini{height:32px;padding:0 12px;border:1px solid var(--hair2);border-radius:999px;font-size:12px;color:var(--ink)}.mini:hover{border-color:var(--ink)}.mini[aria-pressed=false]{color:var(--mute);border-style:dashed}
+.sl{display:grid;grid-template-columns:92px minmax(0,1fr) 56px;align-items:center;gap:10px;height:34px;font-size:12.5px;color:#c8c5be}
+.sl input{width:100%;accent-color:#e9e6df;height:24px;margin:0}.sl output{font-size:12px;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tg{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.keys{margin:12px 0 0;font-size:11.5px;line-height:2;color:var(--mute)}
+kbd{font:inherit;font-size:10.5px;border:1px solid var(--hair2);border-radius:4px;padding:0 5px;margin-right:2px;color:var(--ink)}
+.msg{margin:6px 0 0;font-size:11.5px;color:#c9b48f;min-height:1em}
+.sbot{margin-top:auto;position:sticky;bottom:-24px;display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;padding:12px 0 24px;background:rgba(17,18,19,.98)}.sbot .stxt{display:none}
+.sbot #steps{width:100%}.sbot .step{flex:1}
+.go2{height:44px;background:var(--ink);color:#111213;font-size:15px;font-weight:500}.go2:hover{background:#fff}
+.ruler{left:420px!important;right:40px!important}
+@media(max-width:900px){.side{position:static;width:auto;background:none;border:0;padding:16px 20px}.side .tiles{grid-template-columns:repeat(3,1fr)}.side .tile{height:64px}.ruler{left:0!important;right:0!important}}
 @media(prefers-reduced-motion:reduce){.rh i{animation:none}.fade{transition:none}}
 </style>
 </head>
@@ -142,28 +166,36 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 
 <div id="stage" class="dots"><canvas id="cv" aria-label="선택한 새의 날개 궤적 애니메이션"></canvas><div class="drag" id="drag">드래그해서 돌려 보기 · 스크롤로 확대 · 더블클릭으로 원래대로</div></div>
 
-<div class="hud left">
+<aside class="side" id="side">
+  <div class="tiles" id="tiles"></div>
   <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p>
   <p class="fig"><b id="big"></b><span>초당 날갯짓</span></p>
   <canvas id="dm" aria-hidden="true"></canvas><span class="dmc">날갯짓 모양</span>
-  <p class="cap" id="cap"></p><p class="src" id="src"></p></div>
-</div>
+  <p class="cap" id="cap"></p><p class="src" id="src"></p>
+  <a class="vid" id="vid" target="_blank" rel="noopener"></a>
+  <p class="ideal">화면 속 궤적은 바람과 자세 변화가 없는 이상적인 상황을 가정한 모델입니다. 실제 새는 상황에 따라 매번 조금씩 다르게 납니다.</p></div>
 
-<div class="hud right">
-  <div class="rh">비행 방식 <i aria-hidden="true"></i></div>
-  <div class="tiles" id="tiles"></div>
-  <div class="yaw"><div class="rh">관측 각도 <span id="yv">0°</span></div><input id="yaw" type="range" min="-180" max="180" value="20" aria-label="관측 각도"></div>
-</div>
+  <section class="ctl" aria-label="궤적 조절">
+    <div class="ctlh"><b>궤적 조절</b><button class="mini" id="reset">초기화</button></div>
+    <label class="sl"><span>날갯짓 폭</span><input type="range" id="c-amp" min="0.4" max="1.6" step="0.05" value="1"><output id="o-amp">100%</output></label>
+    <label class="sl"><span>날갯짓 빠르기</span><input type="range" id="c-freq" min="0.4" max="2" step="0.05" value="1"><output id="o-freq">100%</output></label>
+    <label class="sl"><span>선회</span><input type="range" id="c-turn" min="-1" max="1" step="0.05" value="0"><output id="o-turn">직진</output></label>
+    <label class="sl"><span>상승 · 하강</span><input type="range" id="c-climb" min="-0.4" max="0.4" step="0.02" value="0"><output id="o-climb">수평</output></label>
+    <label class="sl"><span>궤적 길이</span><input type="range" id="c-len" min="1" max="8" step="0.5" value="4"><output id="o-len">4주기</output></label>
+    <div class="tg"><button class="mini" id="t-bird" aria-pressed="true">새 보이기</button><button class="mini" id="t-obj">3D 파일 받기 (.obj)</button></div>
+    <p class="keys"><kbd>←</kbd><kbd>→</kbd> 선회 &nbsp; <kbd>↑</kbd><kbd>↓</kbd> 상승·하강 &nbsp; <kbd>B</kbd> 새 끄기 &nbsp; <kbd>1</kbd>–<kbd>5</kbd> 새 고르기 &nbsp; <kbd>Space</kbd> 정지</p>
+    <p class="msg" id="msg" role="status"></p>
+  </section>
 
-<div class="hud steps">
-  <p class="stxt fade" id="stxt"></p>
-  <div role="tablist" id="steps">
-    <button class="step" role="tab" data-s="0">경로</button><button class="step" role="tab" data-s="1">주기</button><button class="step" role="tab" data-s="2">궤적</button>
+  <div class="sbot">
+    <p class="stxt fade" id="stxt"></p>
+    <div role="tablist" id="steps"><button class="step" role="tab" data-s="0">경로</button><button class="step" role="tab" data-s="1">주기</button><button class="step" role="tab" data-s="2">궤적</button></div>
+    <button class="go2" id="play">정지 <span aria-hidden="true">‖</span></button>
   </div>
-</div>
+  <div hidden><input id="yaw" type="range" min="-180" max="180" value="20"><span id="yv"></span></div>
+</aside>
 
 <div class="hud ruler"><canvas id="rc" aria-label="시간 눈금자, 좌우로 끌어 시간 이동"></canvas></div>
-<button class="hud go" id="play">정지 <span aria-hidden="true">‖</span></button>
 </div>
 
 <section id="cmp" aria-labelledby="cmpT" hidden>
@@ -220,8 +252,15 @@ const BIRDS=[
   s:['낮게 오르내리는 길','짧게 치고, 길게 미끄러진다','힘을 쓸 때만 크게'],
   icon:dotsOn(u=>u<.45?[3+u*40,12+(Math.floor(u*18)%2?-6:6)]:[3+u*40,12])}
 ];
-function state(b,t){const k=KIN[b.mode](t),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip;
-  return{S:k.S,tipB:tb,tipW:[tb[0]*d[0]+tb[2]*l[0],tb[1],tb[0]*d[2]+tb[2]*l[2]],w:k.w,cyc:k.cyc,d,l,up:k.up,pt:k.pt||0}}
+const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true};
+function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let S=k.S.slice(),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip,pt=k.pt||0;
+  if(b.mode==='soar'){S[1]+=CTRL.climb*.5*t;const g=1-CTRL.turn*.45;S=[S[0]*g,S[1],S[2]*g]}
+  else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}
+  if(CTRL.amp!==1){const L=Math.hypot(tb[0],tb[1],tb[2])||1;
+    if(b.mode==='hover'){const a=Math.atan2(tb[0],tb[2])*CTRL.amp,h=Math.hypot(tb[0],tb[2]);tb=[h*Math.sin(a),tb[1],h*Math.cos(a)]}
+    else{const e=Math.asin(Math.max(-1,Math.min(1,tb[1]/L))),az=Math.atan2(tb[0],tb[2]),e2=Math.max(-1.45,Math.min(1.45,e*CTRL.amp)),h=L*Math.cos(e2);tb=[h*Math.sin(az),L*Math.sin(e2),h*Math.cos(az)]}}
+  return{S,tipB:tb,tipW:[tb[0]*d[0]+tb[2]*l[0],tb[1],tb[0]*d[2]+tb[2]*l[2]],w:k.w,cyc:k.cyc,d,l,up:k.up,pt}}
+function projZ(p,c){const ca=Math.cos(c.yaw),sa=Math.sin(c.yaw),z1=p[0]*sa+p[2]*ca,cb=Math.cos(c.pitch),sb=Math.sin(c.pitch);return p[1]*sb+z1*cb}
 function proj(p,c){const ca=Math.cos(c.yaw),sa=Math.sin(c.yaw),x1=p[0]*ca-p[2]*sa,z1=p[0]*sa+p[2]*ca,cb=Math.cos(c.pitch),sb=Math.sin(c.pitch),y1=p[1]*cb-z1*sb,z2=p[1]*sb+z1*cb,s=c.dist/(c.dist+z2);return[c.cx+x1*s*c.scale,c.cy-y1*s*c.scale]}
 const STOPS=[[79,107,237],[155,107,216],[239,111,154],[246,166,95]],INK='233,230,223';
 function col(t){const x=t*(STOPS.length-1),i=Math.min(STOPS.length-2,Math.floor(x)),f=x-i,a=STOPS[i],b=STOPS[i+1];return a.map((v,j)=>Math.round(v+(b[j]-v)*f))}
@@ -384,6 +423,7 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   gr.addColorStop(0,'rgba(233,230,223,.11)');gr.addColorStop(.5,'rgba(233,230,223,.04)');gr.addColorStop(1,'rgba(233,230,223,0)');ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
   ctx.save();try{ctx.filter='drop-shadow(0 0 1px rgba(245,242,235,.55)) drop-shadow(0 0 14px rgba(245,242,235,.22))'}catch(e){}ctx.drawImage(g.rd.domElement,0,0,W,H);ctx.restore();return true}
 
+let LASTMESH=null;
 function render(cv,b,t,cam,o){
   const [ctx,W,H]=fit(cv);if(!W||!H)return;
   const c={yaw:cam.yaw,pitch:cam.pitch,dist:7,scale:Math.min(cam.fw||W,H*.82)*cam.zoom,cx:cam.cx!=null?cam.cx:W*cam.ox,cy:H*cam.oy};
@@ -414,21 +454,24 @@ function render(cv,b,t,cam,o){
     const kk=KIN[b.mode](t),ph=kk.ph!=null?kk.ph:t/2.4;for(let k=0;k<3;k++){const age=((ph%1)+1)%1+k,rad=.25+age*.75;ring(rad,.22*(1-age/3)*(b.mode==='soar'?.5:Math.max(.25,kk.w)))}
     ctx.fillStyle=`rgba(${INK},.05)`;ctx.beginPath();for(let i=0;i<=32;i++){const q=P([Math.cos(i/32*TAU)*.55,Y,Math.sin(i/32*TAU)*.22]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])}ctx.fill();
     const fl=P([0,Y,0]);ctx.setLineDash([2,4]);ctx.strokeStyle=`rgba(${INK},.3)`;ctx.beginPath();ctx.moveTo(o2[0],o2[1]);ctx.lineTo(fl[0],fl[1]);ctx.stroke();ctx.setLineDash([])}
-  // ribbon: strands + strobe lines + stipple (time-stable sampling)
+  // ribbon: solid swept surface (time-stable sampling, depth-sorted, shaded)
   const N=o.n||140,dt=o.win/N,i0=Math.floor((t-o.win)/dt),ts=[];for(let i=1;i<=N;i++)ts.push((i0+i)*dt);ts.push(t);
-  const A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st);A.push(P(a));B.push(P(add(a,tipOf(st))));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
-  const M=A.length,hsh=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n)},L=(p,q,v)=>[p[0]+(q[0]-p[0])*v,p[1]+(q[1]-p[1])*v];
-  const SN=12;ctx.lineWidth=.6;
-  for(let k=1;k<=SN;k++){const v=k/SN;for(let j=0;j<M-1;j++){const al=(0.03+0.42*F[j]**1.3)*(0.35+0.65*v)*o.alpha*(k===SN?2:1);if(al<.01)continue;const p0=L(A[j],B[j],v),p1=L(A[j+1],B[j+1],v);ctx.strokeStyle=`rgba(${INK},${Math.min(.9,al)})`;ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0],p1[1]);ctx.stroke()}}
-  for(let j=0;j<M-1;j++){const id=i0+1+j,al=(0.06+0.55*F[j])*o.alpha;ctx.fillStyle=`rgba(${INK},${al})`;
-    for(let m=0;m<18;m++){const u=hsh(id*97.3+m*13.1),v=Math.pow(hsh(id*31.7+m*7.7),.7),q=L(L(A[j],B[j],v),L(A[j+1],B[j+1],v),u);ctx.fillRect(q[0]-.6,q[1]-.6,1.2,1.2)}}
-  const K=Math.max(1,Math.round(N/24));
-  for(let j=0;j<M-1;j++){if((i0+1+j)%K)continue;const al=(0.05+0.5*F[j])*o.alpha;ctx.strokeStyle=`rgba(${INK},${al})`;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.stroke();
-    ctx.fillStyle=`rgba(${INK},${Math.min(1,al*1.4)})`;ctx.beginPath();ctx.arc(B[j][0],B[j][1],1.8,0,TAU);ctx.fill()}
+  const A3=[],B3=[],A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
+  const M=A.length,LV=nrm([.35,.8,-.5]),Q=[];
+  for(let j=0;j<M-1;j++){const u=sub(B3[j],A3[j]),v=sub(A3[j+1],A3[j]),nn=nrm(crs(u,v)),z=(projZ(A3[j],c)+projZ(B3[j],c)+projZ(A3[j+1],c)+projZ(B3[j+1],c))/4;
+    const cr=(B[j][0]-A[j][0])*(A[j+1][1]-A[j][1])-(B[j][1]-A[j][1])*(A[j+1][0]-A[j][0]);Q.push([z,j,Math.abs(nn[0]*LV[0]+nn[1]*LV[1]+nn[2]*LV[2]),cr>0])}
+  Q.sort((x,y)=>y[0]-x[0]);
+  for(const [z,j,lam,front] of Q){const f=F[j],sh=.35+.65*lam,base=front?[233,230,223]:[176,168,154],col=base.map(x=>Math.round(x*sh*(.55+.45*f)+17*(1-sh)));
+    const al=(.18+.72*Math.pow(f,.8))*o.alpha;ctx.fillStyle=ctx.strokeStyle=`rgba(${col},${al})`;ctx.lineWidth=.6;
+    ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill();ctx.stroke()}
+  ctx.lineWidth=1.1;ctx.strokeStyle=`rgba(${INK},${.55*o.alpha})`;ctx.beginPath();B.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();
+  const K=Math.max(1,Math.round(N/30));ctx.lineWidth=.6;
+  for(let j=0;j<M-1;j++){if((i0+1+j)%K)continue;ctx.strokeStyle=`rgba(17,18,19,${.12+.25*F[j]})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.stroke()}
+  LASTMESH={A3,B3,id:b.id};
   const N2=M-1;
   const a=A[N2],bq=B[N2];
-  if(o.photo){if(!draw3D(ctx,b,now,fixed,c,W,H)){const hv=P(fixed?[.6,0,0]:mul(now.d,.6)),dx=(hv[0]-o2[0])/(.6*c.scale);drawPhoto(ctx,b,t,o2,c.scale,1,Math.sign(dx||1),0)}}
-  else drawBird(ctx,P,now,fixed);
+  if(o.photo&&CTRL.bird){if(!draw3D(ctx,b,now,fixed,c,W,H)){const hv=P(fixed?[.6,0,0]:mul(now.d,.6)),dx=(hv[0]-o2[0])/(.6*c.scale);drawPhoto(ctx,b,t,o2,c.scale,1,Math.sign(dx||1),0)}}
+  else if(CTRL.bird)drawBird(ctx,P,now,fixed);
   // HUD callouts
   if(o.hud){const side=-1,L=Math.min(170,W*.13);
     if(!o.photo||step===1)callout(ctx,bq,side,-90,L,'WINGTIP','날개끝',W,H);
@@ -440,13 +483,13 @@ function render(cv,b,t,cam,o){
 // ---------- UI ----------
 const $=id=>document.getElementById(id);
 const cv=$('cv'),stage=$('stage'),rc=$('rc'),dm=$('dm');
-$('tiles').innerHTML=BIRDS.map((b,i)=>`<button class="tile" data-i="${i}" aria-pressed="false"><svg viewBox="0 0 46 24" fill="currentColor">${b.icon}</svg>${b.tag}<small>${b.ko}</small></button>`).join('')+
+$('tiles').innerHTML=BIRDS.map((b,i)=>`<button class="tile" data-i="${i}" aria-pressed="false"><svg viewBox="0 0 46 24" fill="currentColor">${b.icon}</svg>${b.word.toUpperCase()}<small>${b.ko}</small></button>`).join('')+
   `<button class="tile" id="auto" aria-pressed="false"><svg viewBox="0 0 46 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 12a9 9 0 1 1 3 6.7"/><path d="M13 6v6h6"/></svg>AUTO<small>자동 순환</small></button>`;
 let cur=0,step=1,yaw=20*Math.PI/180,pitch=0,T=3,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,speed=.85,auto=false,autoT=0,alt=false;
 function setBird(i,instant){cur=(i+BIRDS.length)%BIRDS.length;const b=BIRDS[cur];pitch=b.pitch;yaw=20*Math.PI/180;if(typeof syncYaw==='function')try{syncYaw()}catch(e){}
   document.querySelectorAll('.tile[data-i]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.i===cur));
   const hx=$('hx'),swap=()=>{$('head').textContent=b.word;$('who').innerHTML=`${b.ko}<i>${b.en}</i>`;$('copy').textContent=`${b.head.replace('.','')} — ${b.copy}`;
-    $('big').textContent=b.n+(b.u?'번':'');$('cap').textContent=CAP[b.id][0];$('src').textContent='출처 · '+CAP[b.id][1];
+    $('big').textContent=b.n+(b.u?'번':'');$('cap').textContent=CAP[b.id][0];{const v=VID[b.id];$('vid').href=v[0];$('vid').textContent='▶  '+v[1]}$('src').textContent='출처 · '+CAP[b.id][1];
     $('stxt').textContent=b.s[step];hx.classList.remove('out');$('stxt').classList.remove('out')};
   if(instant)swap();else{hx.classList.add('out');$('stxt').classList.add('out');setTimeout(swap,280)}
   try{history.replaceState(null,'','#'+b.id)}catch(e){}}
@@ -468,7 +511,13 @@ let rd=null;const PPS=120;
 rc.addEventListener('pointerdown',e=>{rd=e.clientX;rc.setPointerCapture(e.pointerId);playing=false;syncPlay()});
 rc.addEventListener('pointermove',e=>{if(rd===null)return;T-=(e.clientX-rd)/PPS;rd=e.clientX});
 rc.addEventListener('pointerup',()=>rd=null);
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')setBird(cur+1);if(e.key==='ArrowLeft')setBird(cur-1);if(e.key===' '){e.preventDefault();pb.click()}if('123'.includes(e.key))setStep(+e.key-1)});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;const k=e.key;
+  if(k==='ArrowLeft'||k==='ArrowRight'){e.preventDefault();setC('turn',CTRL.turn+(k==='ArrowRight'?.1:-.1))}
+  else if(k==='ArrowUp'||k==='ArrowDown'){e.preventDefault();setC('climb',CTRL.climb+(k==='ArrowUp'?.04:-.04))}
+  else if(k==='b'||k==='B'||k==='ㅠ'){toggleBird()}
+  else if('12345'.includes(k)&&k.length===1){setBird(+k-1)}
+  else if(k===' '){e.preventDefault();pb.click()}
+  else if(k==='r'||k==='R'){resetC()}});
 
 function drawRuler(){const [x,W,H]=fit(rc);if(!W)return;const mid=W/2,base=H-26;
   x.fillStyle=`rgb(${INK})`;x.textAlign='center';
@@ -485,8 +534,8 @@ tick();setInterval(tick,15000);
 let last=0;
 function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T+=dt*speed;
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
-  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=390,fr=W-330,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(fl+fr)/2+(b.ox-.5)*fw*.8,clipL:mob?null:fl+40};
-  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;
+  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=420,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40};
+  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.cyc;o.win=cy*CTRL.len;o.n=Math.round(Math.min(560,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
   zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{render(cv,b,T,cam,o);drawRuler();drawDots()}requestAnimationFrame(frame)}
 
@@ -562,6 +611,25 @@ const CAP={
  hummingbird:['날개를 위아래가 아니라 앞뒤로 약 110° 저어 제자리에 머뭅니다. 뒤로 보낼 때는 날개를 뒤집어서, 날개끝이 공중에 8자를 그립니다.','Tobalske 외 2007 · National Geographic'],
  vulture:['거의 날갯짓하지 않고, 날개를 편 채 올라오는 더운 공기를 탑니다. 다른 독수리보다 좁게 원을 그려 상승기류가 가장 센 곳에 머뭅니다.','Durmus & Keskin 2021 · Harel 외 2016'],
  hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010']};
+
+const CLIM={amp:[.4,1.6],freq:[.4,2],turn:[-1,1],climb:[-.4,.4],len:[1,8]};
+function fmtC(k,v){if(k==='amp'||k==='freq')return Math.round(v*100)+'%';if(k==='turn')return Math.abs(v)<.03?'직진':(v>0?'오른쪽 ':'왼쪽 ')+Math.round(Math.abs(v)*100)+'%';if(k==='climb')return Math.abs(v)<.01?'수평':(v>0?'상승 ':'하강 ')+Math.round(Math.abs(v)*100)+'%';return v+'주기'}
+function setC(k,v){const [lo,hi]=CLIM[k];v=Math.round(Math.max(lo,Math.min(hi,v))*100)/100;CTRL[k]=v;const el=$('c-'+k);if(el)el.value=v;$('o-'+k).textContent=fmtC(k,v)}
+['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
+function resetC(){setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
+$('reset').onclick=resetC;
+function toggleBird(){CTRL.bird=!CTRL.bird;$('t-bird').setAttribute('aria-pressed',CTRL.bird);$('t-bird').textContent=CTRL.bird?'새 보이기':'새 숨김 · 궤적만'}
+$('t-bird').onclick=toggleBird;
+function say(t){$('msg').textContent=t;clearTimeout(say.t);say.t=setTimeout(()=>$('msg').textContent='',4000)}
+$('t-obj').onclick=()=>{const m=LASTMESH;if(!m){say('궤적을 그린 뒤 다시 눌러 주세요');return}
+  const L=['# Wingbeat trace · '+m.id,'o wingbeat_'+m.id];m.A3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));m.B3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));
+  const n=m.A3.length;for(let j=1;j<n;j++)L.push(`f ${j} ${j+1} ${n+j+1} ${n+j}`);
+  try{const url=URL.createObjectURL(new Blob([L.join('\n')],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download=`wingbeat-${m.id}.obj`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);say('지금 화면의 궤적을 .obj 파일로 저장했어요. 이 화면에서 받아지지 않으면 GitHub 사이트에서 받아 주세요.')}catch(e){say('이 화면에서는 파일을 받을 수 없어요. GitHub 사이트에서 받아 주세요.')}};
+const VID={goose:['https://www.youtube.com/results?search_query=Canada+goose+flight+slow+motion','유튜브에서 기러기 비행 슬로모션 보기'],
+ woodpecker:['https://www.youtube.com/results?search_query=downy+woodpecker+flight+slow+motion','유튜브에서 솜털딱다구리 비행 영상 보기'],
+ hummingbird:['https://www.youtube.com/watch?v=gJ_T_Y1rxHw','벌새 정지비행 슬로모션 · Smithsonian Channel'],
+ vulture:['https://www.youtube.com/results?search_query=cinereous+vulture+soaring+thermal','유튜브에서 독수리 상승기류 선회 영상 보기'],
+ hawk:['https://www.youtube.com/results?search_query=Eurasian+sparrowhawk+flight+slow+motion','유튜브에서 새매 비행 슬로모션 보기']};
 const start=BIRDS.findIndex(b=>'#'+b.id===location.hash);
 const wantCmp=location.hash==='#compare';setBird(start<0?0:start,true);setStep(1);syncYaw();syncPlay();requestAnimationFrame(frame);if(wantCmp)showPage('cmp');
 }
