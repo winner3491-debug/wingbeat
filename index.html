@@ -845,11 +845,11 @@ $('t-obj').onclick=()=>{const m=LASTMESH;if(!m){say('궤적을 그린 뒤 다시
   const L=['# Wingbeat trace · '+m.id,'o wingbeat_'+m.id];m.A3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));m.B3.forEach(p=>L.push('v '+p.map(x=>x.toFixed(4)).join(' ')));
   const n=m.A3.length;for(let j=1;j<n;j++)L.push(`f ${j} ${j+1} ${n+j+1} ${n+j}`);
   try{const url=URL.createObjectURL(new Blob([L.join('\n')],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download=`wingbeat-${m.id}.obj`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);say('지금 화면의 궤적을 .obj 파일로 저장했어요. 이 화면에서 받아지지 않으면 GitHub 사이트에서 받아 주세요.')}catch(e){say('이 화면에서는 파일을 받을 수 없어요. GitHub 사이트에서 받아 주세요.')}};
-const VID={goose:['https://www.youtube.com/results?search_query=Canada+goose+flight+slow+motion','유튜브에서 기러기 비행 슬로모션 보기'],
- woodpecker:['https://www.youtube.com/results?search_query=downy+woodpecker+flight+slow+motion','유튜브에서 솜털딱다구리 비행 영상 보기'],
+const VID={goose:['https://www.youtube.com/watch?v=y0aMoOssBDY','캐나다기러기 비행 슬로모션'],
+ woodpecker:['https://www.youtube.com/watch?v=BA5qpodj34Y','솜털딱다구리 비행 슬로모션'],
  hummingbird:['https://www.youtube.com/watch?v=gJ_T_Y1rxHw','벌새 정지비행 슬로모션 · Smithsonian Channel'],
  vulture:['https://www.youtube.com/watch?v=bOdqfhyZkMM&t=40s','독수리 비행 영상 (40초부터)'],
- hawk:['https://www.youtube.com/results?search_query=Eurasian+sparrowhawk+flight+slow+motion','유튜브에서 새매 비행 슬로모션 보기']};
+ hawk:['https://www.youtube.com/watch?v=v08k2De6jdk','새매 비행 고속촬영 (200fps)']};
 const start=BIRDS.findIndex(b=>'#'+b.id===location.hash);
 const wantCmp=location.hash==='#compare';setBird(start<0?0:start,true);setStep(1);syncYaw();syncPlay();requestAnimationFrame(frame);if(wantCmp)showPage('cmp');
 }
