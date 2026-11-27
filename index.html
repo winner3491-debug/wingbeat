@@ -264,6 +264,15 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 .kout{margin-top:auto;padding-top:6px}
 .sbot{margin-top:0}
 #pn-ctl .ctlt{margin-bottom:4px}
+
+/* v37 hide toggle */
+.hide-t{align-self:flex-end;display:flex;align-items:center;gap:5px;margin:-4px 0 -2px;height:22px;padding:0 2px;font-size:10.5px;color:var(--mute)}
+.hide-t:hover{color:var(--ink)}
+.hide-t svg{transition:transform .25s}
+.clean .hide-t svg{transform:rotate(180deg)}
+.clean .side>:not(.tiles):not(.hide-t){display:none!important}
+.clean .side{background:none;bottom:auto}
+.clean .ruler{left:30px!important}
 </style>
 </head>
 <body class="dots">
@@ -278,6 +287,7 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 
 <aside class="side" id="side">
   <div class="tiles" id="tiles"></div>
+  <button class="hide-t" id="t-hide" aria-pressed="false"><span>정보 숨기기</span><svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7.5l3-3 3 3"/></svg></button>
   <div class="hxw"><div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p></div>
   <div class="icos"><a class="ico yt" id="vid" target="_blank" rel="noopener" aria-label="유튜브 영상"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></a><button class="ico" id="t-ctl" aria-expanded="false" aria-label="궤적 조절 열기" title="궤적 조절"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div></div>
   <div class="pane" id="pn-info">
@@ -664,7 +674,7 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T
   {const h=k=>HELD.has(k)?1:0,dx=h('ArrowRight')-h('ArrowLeft'),dy=h('ArrowUp')-h('ArrowDown');TGT.turn=dx?dx*.9:SLV.turn;TGT.climb=dy?dy*.4:SLV.climb;if(window.__showC){__showC('turn',TGT.turn);__showC('climb',TGT.climb)}}
   {const a=1-Math.exp(-dt*5);for(const k in TGT){const d=TGT[k]-CTRL[k];CTRL[k]=Math.abs(d)<1e-4?TGT[k]:CTRL[k]+d*a}}
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
-  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=mob?0:300,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
+  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=mob?0:(document.body.classList.contains('clean')?20:300),fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
   if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-160,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
   const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;if(b.mode!=='hover'&&b.mode!=='soar'){const S1=KIN[b.mode](T).S,S0=KIN[b.mode](T-2).S,v=Math.max(.2,Math.hypot(S1[0]-S0[0],S1[2]-S0[2])/2);o.win=Math.min(o.win,(b.mode==='flapglide'?1.5:2.2)*CTRL.len/v)}o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
@@ -750,6 +760,8 @@ window.__setC=setC;window.__showC=(k,v)=>{const o=$('o-'+k),t=fmtC(k,Math.round(
 ['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
 function resetC(){resetLog();setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
 $('reset').onclick=resetC;resetC();
+function toggleClean(){const c=document.body.classList.toggle('clean');$('t-hide').setAttribute('aria-pressed',c);$('t-hide').querySelector('span').textContent=c?'정보 보기':'정보 숨기기'}
+$('t-hide').onclick=toggleClean;document.addEventListener('keydown',e=>{if((e.key==='h'||e.key==='H'||e.key==='ㅗ')&&e.target.tagName!=='INPUT')toggleClean()});
 $('t-ctl').onclick=()=>{const c=$('pn-ctl'),o=c.hidden;c.hidden=!o;$('pn-info').hidden=o;$('t-ctl').setAttribute('aria-expanded',o);$('t-ctl').setAttribute('aria-label',o?'궤적 조절 닫기':'궤적 조절 열기')};
 if(document.querySelector('.ptabs'))document.querySelector('.ptabs').onclick=e=>{const x=e.target.closest('button');if(!x)return;document.querySelectorAll('.ptabs button').forEach(y=>y.setAttribute('aria-selected',y===x));$('pn-info').hidden=x.dataset.pn!=='info';$('pn-ctl').hidden=x.dataset.pn!=='ctl';if(x.dataset.pn==='info'&&window.drawDotsNow)drawDotsNow()};
 {const d=$('drag'),hide=()=>d.classList.add('gone');setTimeout(hide,6000);$('cv').addEventListener('pointerdown',hide,{once:true});$('cv').addEventListener('wheel',hide,{once:true,passive:true})}
