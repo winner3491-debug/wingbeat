@@ -594,16 +594,15 @@ function render(cv,b,t,cam,o){
   // ribbon: solid swept surface (time-stable sampling, depth-sorted, shaded)
   const N=o.n||140,dt=o.win/N,i0=Math.floor((t-o.win)/dt),ts=[];for(let i=1;i<=N;i++)ts.push((i0+i)*dt);ts.push(t);
   const A3=[],B3=[],A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
-  const M=A.length,LV=nrm([.35,.8,-.5]),Q=[];
-  for(let j=0;j<M-1;j++){const u=sub(B3[j],A3[j]),v=sub(A3[j+1],A3[j]),nn=nrm(crs(u,v)),z=(projZ(A3[j],c)+projZ(B3[j],c)+projZ(A3[j+1],c)+projZ(B3[j+1],c))/4;
-    const cr=(B[j][0]-A[j][0])*(A[j+1][1]-A[j][1])-(B[j][1]-A[j][1])*(A[j+1][0]-A[j][0]);Q.push([z,j,Math.abs(nn[0]*LV[0]+nn[1]*LV[1]+nn[2]*LV[2]),cr>0])}
-  Q.sort((x,y)=>y[0]-x[0]);
-  for(const [z,j,lam,front] of Q){const f=F[j],sh=.35+.65*lam,base=front?[233,230,223]:[176,168,154],col=base.map(x=>Math.round(x*sh*(.55+.45*f)+17*(1-sh)));
-    const al=(.18+.72*Math.pow(f,.8))*o.alpha;ctx.fillStyle=ctx.strokeStyle=`rgba(${col},${al})`;ctx.lineWidth=.6;
-    ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill();ctx.stroke()}
-  ctx.lineWidth=1.1;ctx.strokeStyle=`rgba(${INK},${.55*o.alpha})`;ctx.beginPath();B.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();
-  const K=Math.max(1,Math.round(N/30));ctx.lineWidth=.6;
-  for(let j=0;j<M-1;j++){if((i0+1+j)%K)continue;ctx.strokeStyle=`rgba(17,18,19,${.12+.25*F[j]})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.stroke()}
+  const M=A.length;
+  // faint body so it still reads as a surface
+  ctx.fillStyle=`rgba(233,230,223,${.035*o.alpha})`;for(let j=0;j<M-1;j++){ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
+  // string lines along the sweep (root → tip), like stretched threads
+  const L=26,CH=Math.max(6,Math.round(M/40));ctx.lineWidth=.7;ctx.lineJoin='round';
+  for(let k=0;k<=L;k++){const f=k/L,edge=k===0||k===L,pts=new Array(M);for(let j=0;j<M;j++){const a3=A3[j],b3=B3[j];pts[j]=P([a3[0]+(b3[0]-a3[0])*f,a3[1]+(b3[1]-a3[1])*f,a3[2]+(b3[2]-a3[2])*f])}
+    const w=edge?1.1:.65,base=.16+.5*Math.pow(f,1.3);ctx.lineWidth=w;
+    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],al=(edge?.75:base)*(.12+.88*Math.pow(ag,.9))*o.alpha;
+      ctx.strokeStyle=`rgba(236,232,224,${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
   LASTMESH={A3,B3,id:b.id};
   if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach(q=>{if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
   const N2=M-1;
