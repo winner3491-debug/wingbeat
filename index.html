@@ -312,9 +312,22 @@ const BIRDS=[
   icon:dotsOn(u=>u<.45?[3+u*40,12+(Math.floor(u*18)%2?-6:6)]:[3+u*40,12])}
 ];
 const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true},TGT={amp:1,freq:1,turn:0,climb:0,len:4},HELD=new Set();
+let USELOG=false;const SLV={turn:0,climb:0},LOG={id:null,s0:0,h:1/120,X:[],D:[]};
+const rotY=(v,a)=>{const c=Math.cos(a),s=Math.sin(a);return[v[0]*c-v[2]*s,v[1],v[0]*s+v[2]*c]};
+function logStep(b){const i=LOG.X.length-1,h=LOG.h,sv=LOG.s0+i*h,fm=b.mode==='soar'?1:CTRL.freq,u=sv*fm,e=1e-3,A=KIN[b.mode](u-e).S,C=KIN[b.mode](u+e).S,vx=(C[0]-A[0])/(2*e),vz=(C[2]-A[2])/(2*e),vh=Math.hypot(vx,vz),Dl=LOG.D[i],r=rotY([vx,0,vz],Dl),X=LOG.X[i];
+  LOG.X.push([X[0]+r[0]*h,X[1]+CTRL.climb*vh*h,X[2]+r[2]*h]);LOG.D.push(Dl+CTRL.turn*1.1*Math.max(vh,.7)*h)}
+function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
+  if(LOG.id!==b.id||t<LOG.s0+1||t>end()+20){LOG.id=b.id;LOG.s0=t-16;LOG.X=[[0,0,0]];LOG.D=[0]}
+  else if(t<end()-.2){const k=Math.max(1,Math.ceil((t-LOG.s0)/LOG.h)+1);LOG.X.length=k;LOG.D.length=k}
+  let g=0;while(end()<t+.05&&g++<6000)logStep(b);
+  if(t-LOG.s0>20){const k=Math.floor((t-18-LOG.s0)/LOG.h);LOG.X.splice(0,k);LOG.D.splice(0,k);LOG.s0+=k*LOG.h}}
+function resetLog(){LOG.id=null}
 function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let S=k.S.slice(),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip,pt=k.pt||0;
+  if(USELOG&&b.mode!=='hover'&&LOG.id===b.id&&LOG.X.length>1){const n=LOG.X.length,f=Math.max(0,Math.min(n-1.0001,(t-LOG.s0)/LOG.h)),i=Math.floor(f),w=f-i,X0=LOG.X[i],X1=LOG.X[i+1],Dl=LOG.D[i]+(LOG.D[i+1]-LOG.D[i])*w;
+    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);pt+=Math.atan(CTRL.climb)*.8}
+  else{
   if(b.mode==='soar'){S[1]+=CTRL.climb*.5*t;const g=1-CTRL.turn*.45;S=[S[0]*g,S[1],S[2]*g]}
-  else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}
+  else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}}
   if(CTRL.amp!==1){const L=Math.hypot(tb[0],tb[1],tb[2])||1;
     if(b.mode==='hover'){const a=Math.atan2(tb[0],tb[2])*CTRL.amp,h=Math.hypot(tb[0],tb[2]);tb=[h*Math.sin(a),tb[1],h*Math.cos(a)]}
     else{const e=Math.asin(Math.max(-1,Math.min(1,tb[1]/L))),az=Math.atan2(tb[0],tb[2]),e2=Math.max(-1.45,Math.min(1.45,e*CTRL.amp)),h=L*Math.cos(e2);tb=[h*Math.sin(az),L*Math.sin(e2),h*Math.cos(az)]}}
@@ -594,14 +607,14 @@ function tick(){const d=new Date(),h=String(d.getHours()).padStart(2,'0'),m=Stri
 tick();setInterval(tick,15000);
 let last=0;
 function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T+=dt*speed;
-  if(HELD.size&&window.__setC){const h=k=>HELD.has(k)?1:0,dx=h('ArrowRight')-h('ArrowLeft'),dy=h('ArrowUp')-h('ArrowDown');if(dx)__setC('turn',TGT.turn+dx*dt*.9);if(dy)__setC('climb',TGT.climb+dy*dt*.36)}
+  {const h=k=>HELD.has(k)?1:0,dx=h('ArrowRight')-h('ArrowLeft'),dy=h('ArrowUp')-h('ArrowDown');TGT.turn=dx?dx*.9:SLV.turn;TGT.climb=dy?dy*.4:SLV.climb;if(window.__showC){__showC('turn',TGT.turn);__showC('climb',TGT.climb)}}
   {const a=1-Math.exp(-dt*5);for(const k in TGT){const d=TGT[k]-CTRL[k];CTRL[k]=Math.abs(d)<1e-4?TGT[k]:CTRL[k]+d*a}}
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
   const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=420,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
   if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-90,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
   const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
-  zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{render(cv,b,T,cam,o);drawRuler();drawDots()}requestAnimationFrame(frame)}
+  zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{(b.mode!=='hover'&&step<2&&(ensureLog(b,T),USELOG=true),render(cv,b,T,cam,o),USELOG=false);drawRuler();drawDots()}requestAnimationFrame(frame)}
 
 // ---------- compare page ----------
 const CMP={wing:{goose:'길고 좁은 날개',woodpecker:'짧고 둥근 날개',hummingbird:'짧고 단단한 날개',vulture:'넓고 긴 날개, 갈라진 끝깃',hawk:'짧고 둥근 날개, 긴 꼬리'}};
@@ -678,10 +691,10 @@ const CAP={
 
 const CLIM={amp:[.4,1.6],freq:[.4,2],turn:[-1,1],climb:[-.4,.4],len:[1,8]};
 function fmtC(k,v){if(k==='amp'||k==='freq')return Math.round(v*100)+'%';if(k==='turn')return Math.abs(v)<.03?'직진':(v>0?'오른쪽 ':'왼쪽 ')+Math.round(Math.abs(v)*100)+'%';if(k==='climb')return Math.abs(v)<.01?'수평':(v>0?'상승 ':'하강 ')+Math.round(Math.abs(v)*100)+'%';return v+'주기'}
-function setC(k,v){const [lo,hi]=CLIM[k];v=Math.max(lo,Math.min(hi,v));TGT[k]=v;const el=$('c-'+k);if(el)el.value=v;$('o-'+k).textContent=fmtC(k,Math.round(v*100)/100);const sl=el&&el.closest('.sl');if(sl)sl.style.setProperty('--p',((v-lo)/(hi-lo)*100).toFixed(1)+'%')}
-window.__setC=setC;
+function setC(k,v){const [lo,hi]=CLIM[k];v=Math.max(lo,Math.min(hi,v));TGT[k]=v;if(k in SLV)SLV[k]=v;const el=$('c-'+k);if(el)el.value=v;$('o-'+k).textContent=fmtC(k,Math.round(v*100)/100);const sl=el&&el.closest('.sl');if(sl)sl.style.setProperty('--p',((v-lo)/(hi-lo)*100).toFixed(1)+'%')}
+window.__setC=setC;window.__showC=(k,v)=>{const o=$('o-'+k),t=fmtC(k,Math.round(v*100)/100);if(o.textContent!==t)o.textContent=t;const el=$('c-'+k),sl=el.closest('.sl'),[lo,hi]=CLIM[k];if(document.activeElement!==el){el.value=v;sl.style.setProperty('--p',((v-lo)/(hi-lo)*100).toFixed(1)+'%')}};
 ['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
-function resetC(){setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
+function resetC(){resetLog();setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
 $('reset').onclick=resetC;resetC();
 document.querySelector('.ptabs').onclick=e=>{const x=e.target.closest('button');if(!x)return;document.querySelectorAll('.ptabs button').forEach(y=>y.setAttribute('aria-selected',y===x));$('pn-info').hidden=x.dataset.pn!=='info';$('pn-ctl').hidden=x.dataset.pn!=='ctl';if(x.dataset.pn==='info'&&window.drawDotsNow)drawDotsNow()};
 {const d=$('drag'),hide=()=>d.classList.add('gone');setTimeout(hide,6000);$('cv').addEventListener('pointerdown',hide,{once:true});$('cv').addEventListener('wheel',hide,{once:true,passive:true})}
