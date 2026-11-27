@@ -465,11 +465,11 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   gr.addColorStop(0,'rgba(233,230,223,.11)');gr.addColorStop(.5,'rgba(233,230,223,.04)');gr.addColorStop(1,'rgba(233,230,223,0)');ctx.fillStyle=gr;ctx.fillRect(pc[0]-R,pc[1]-R,R*2,R*2);
   ctx.save();try{ctx.filter='drop-shadow(0 0 1px rgba(245,242,235,.55)) drop-shadow(0 0 14px rgba(245,242,235,.22))'}catch(e){}ctx.drawImage(g.rd.domElement,0,0,W,H);ctx.restore();return true}
 
-let LASTMESH=null;const PAN={x:0,y:0,box:null};
+let LASTMESH=null;const PAN={x:0,y:0,z:1,box:null};
 function render(cv,b,t,cam,o){
   const [ctx,W,H]=fit(cv);if(!W||!H)return;
   const c={yaw:cam.yaw,pitch:cam.pitch,dist:7,scale:Math.min(cam.fw||W,H*.82)*cam.zoom,cx:cam.cx!=null?cam.cx:W*cam.ox,cy:H*cam.oy};
-  if(cam.pan){c.cx+=PAN.x;c.cy+=PAN.y}
+  if(cam.pan){c.cx+=PAN.x;c.cy+=PAN.y;c.scale*=PAN.z}
   const now=state(b,t),fixed=o.frame==='fixed',P=v=>proj(v,c);
   const baseOf=st=>fixed?[0,0,0]:sub(st.S,now.S),tipOf=st=>fixed?st.tipB:st.tipW;
   ctx.lineJoin=ctx.lineCap='round';
@@ -581,8 +581,8 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T
   {const a=1-Math.exp(-dt*5);for(const k in TGT){const d=TGT[k]-CTRL[k];CTRL[k]=Math.abs(d)<1e-4?TGT[k]:CTRL[k]+d*a}}
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
   const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=420,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
-  if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-30,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3);PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
-  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.cyc;o.win=cy*CTRL.len;o.n=Math.round(Math.min(560,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
+  if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-90,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
+  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
   zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{render(cv,b,T,cam,o);drawRuler();drawDots()}requestAnimationFrame(frame)}
 
