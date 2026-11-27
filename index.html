@@ -427,7 +427,7 @@ function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
 function resetLog(){LOG.id=null}
 function state(b,t){const fm=b.mode==='soar'?1:CTRL.freq,k=KIN[b.mode](t*fm);let S=k.S.slice(),d=k.d||[1,0,0],l=k.l||[0,0,1],tb=k.tip,pt=k.pt||0;
   if(USELOG&&LOG.id===b.id&&LOG.X.length>1){const n=LOG.X.length,f=Math.max(0,Math.min(n-1.0001,(t-LOG.s0)/LOG.h)),i=Math.floor(f),w=f-i,X0=LOG.X[i],X1=LOG.X[i+1],Dl=LOG.D[i]+(LOG.D[i+1]-LOG.D[i])*w;
-    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode!=='hover'){const j=Math.max(0,i-12),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],hz=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])||1e-6;pt+=Math.atan((Xb[1]-Xa[1])/hz)*.45}}
+    S=[X0[0]+(X1[0]-X0[0])*w,X0[1]+(X1[1]-X0[1])*w+k.S[1],X0[2]+(X1[2]-X0[2])*w];d=rotY(d,Dl);l=rotY(l,Dl);if(b.mode==='hover'){const j=Math.max(0,i-24),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],dtv=(Math.min(n-1,i+1)-j)*LOG.h||1,sp=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])/dtv,vy=(Xb[1]-Xa[1])/dtv;pt+=-.75*Math.min(1,sp/1.1)+.25*Math.max(-1,Math.min(1,vy/1.8))}else if(b.mode!=='hover'){const j=Math.max(0,i-12),Xa=LOG.X[j],Xb=LOG.X[Math.min(n-1,i+1)],hz=Math.hypot(Xb[0]-Xa[0],Xb[2]-Xa[2])||1e-6;pt+=Math.atan((Xb[1]-Xa[1])/hz)*.45}}
   else{
   if(b.mode==='soar'){S[1]+=CTRL.climb*.5*t;const g=1-CTRL.turn*.45;S=[S[0]*g,S[1],S[2]*g]}
   else if(b.mode!=='hover'){const f=S[0]/fm,kap=CTRL.turn*.55,th=kap*f;S=Math.abs(kap)<1e-4?[f,S[1],0]:[Math.sin(th)/kap,S[1],(1-Math.cos(th))/kap];S[1]+=CTRL.climb*f;d=[Math.cos(th),0,Math.sin(th)];l=[-Math.sin(th),0,Math.cos(th)];pt+=Math.atan(CTRL.climb)*.8}}
@@ -464,11 +464,12 @@ const CL={};function callout(ctx,p,dir,dy,len,t1,t2,W,H){
   ctx.textBaseline='top';ctx.font=`500 13px ${FONT}`;ctx.fillStyle=`rgb(${INK})`;ctx.fillText(t2,ex,ey+5)}
 
 
+const HV0=Math.atan2(1,.75),hvF=n=>{const a=HV0+(n.pt||0);return[Math.cos(a),Math.sin(a),0]},hvU=n=>{const a=HV0+(n.pt||0);return[-Math.sin(a),Math.cos(a),0]};
 const nrm=v=>{const m=Math.hypot(...v)||1;return v.map(x=>x/m)},crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 function quad(ctx,pts){ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath()}
 function drawSlat(ctx,P,now,fixed,c){
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
-  const pt=now.pt||0,F=now.up?nrm([0.75,1,0]):[Math.cos(pt),Math.sin(pt),0],U=now.up?nrm([-1,0.75,0]):[-Math.sin(pt),Math.cos(pt),0],Lt=[0,0,1];
+  const pt=now.pt||0,F=now.up?hvF(now):[Math.cos(pt),Math.sin(pt),0],U=now.up?hvU(now):[-Math.sin(pt),Math.cos(pt),0],Lt=[0,0,1];
   const lerp=(a,b,f)=>[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f],at=(p,...v)=>{let q=p;for(let i=0;i<v.length;i+=2)q=add(q,mul(v[i],v[i+1]));return q};
   const SC=1,PJ=v=>P(W3(mul(v,SC))),Z=v=>projZ(W3(mul(v,SC)),c),parts=[];
   const quad=(a,b,e,g,sh,z)=>parts.push({z:z!=null?z:(Z(a)+Z(e))/2,pts:[a,b,e,g],sh});
@@ -496,7 +497,7 @@ function drawSlat(ctx,P,now,fixed,c){
 function drawBird(ctx,P,now,fixed){
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l;
   const W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
-  const ax=now.up?nrm([0.3,1,0]):[1,0,0],up=now.up?nrm([-1,0.3,0]):[0,1,0],lat=[0,0,1];
+  const ax=now.up?hvF(now):[1,0,0],up=now.up?hvU(now):[0,1,0],lat=[0,0,1];
   const wing=(side)=>{
     const tb=[now.tipB[0],now.tipB[1],now.tipB[2]*side],L=Math.hypot(...tb),f=Math.min(1,L),sp=nrm(tb),o=[0,0,0.05*side];
     let ch=sub(mul(ax,-1),mul(sp,-ax[0]*sp[0]-ax[1]*sp[1]-ax[2]*sp[2]));ch=nrm(ch);let nn=nrm(crs(sp,ch));
@@ -583,7 +584,7 @@ function bodyW(id,v){const b=TOP[id].b,x=v*(b.length-1),i=Math.min(b.length-2,Ma
 function poseMesh(mesh,id,b,now,fixed,belly){
   const T=TOP[id],Lr=LREF[id],pos=mesh.geometry.attributes.position.array,cols=mesh.userData.cols,C=cols.length;
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
-  const F=now.up?nrm([0.75,1,0]):[Math.cos(now.pt||0),Math.sin(now.pt||0),0],U=now.up?nrm([-1,0.75,0]):[-Math.sin(now.pt||0),Math.cos(now.pt||0),0],Lt=[0,0,1];
+  const F=now.up?hvF(now):[Math.cos(now.pt||0),Math.sin(now.pt||0),0],U=now.up?hvU(now):[-Math.sin(now.pt||0),Math.cos(now.pt||0),0],Lt=[0,0,1];
   const tipFull=(1-R0)*Lr;
   const fold=b.mode==='bound'?sm(1-now.w):0;
   const wing=side=>{const tb=[now.tipB[0],now.tipB[1],now.tipB[2]*side],hs=mul(Lt,side*R0*Lr*.8),toT=sub(tb,hs),lt=Math.hypot(...toT);
@@ -611,7 +612,7 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
   for(const k in g.meshes)g.meshes[k].grp.visible=k===b.id;
   poseMesh(M.top,b.id,b,now,fixed,0);poseMesh(M.bel,b.id,b,now,fixed,1);
   {const id=b.id,T_=TOP[id],Lr=LREF[id],d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
-   const F=now.up?nrm([0.75,1,0]):[Math.cos(now.pt||0),Math.sin(now.pt||0),0],U=now.up?nrm([-1,0.75,0]):[-Math.sin(now.pt||0),Math.cos(now.pt||0),0],Lt=[0,0,1],g_=M.tube.geometry,pp=g_.attributes.position.array,uu=g_.attributes.uv.array,RS=24;let k=0,q=0;
+   const F=now.up?hvF(now):[Math.cos(now.pt||0),Math.sin(now.pt||0),0],U=now.up?hvU(now):[-Math.sin(now.pt||0),Math.cos(now.pt||0),0],Lt=[0,0,1],g_=M.tube.geometry,pp=g_.attributes.position.array,uu=g_.attributes.uv.array,RS=24;let k=0,q=0;
    for(let r=0;r<=NY;r++){const v=r/NY,bx=(T_.h-v)*T_.a*2*Lr,bw=Math.min(bodyW(id,v),R0)*Lr*.9,tf=1-.85*sm((v-WROW[id][1])/.1),spn=Math.pow(Math.sin(Math.PI*Math.min(1,Math.max(0,v/(WROW[id][1]+.04)))),.55),hh=Math.max(bw*.95*spn*tf*.92,bw*.12);
      for(let j=0;j<=RS;j++){const an=TAU*j/RS,zz=bw*Math.cos(an),sy=Math.sin(an),yy=hh*sy*(sy<0?.95:1),P=W3(add(add(mul(F,bx),mul(Lt,zz)),mul(U,yy)));pp[k++]=P[0];pp[k++]=P[1];pp[k++]=P[2];uu[q++]=.5+.5*zz/Lr;uu[q++]=1-v}}
    g_.attributes.position.needsUpdate=true;g_.attributes.uv.needsUpdate=true;g_.computeVertexNormals()}
