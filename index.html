@@ -596,12 +596,12 @@ function render(cv,b,t,cam,o){
   const A3=[],B3=[],A=[],B=[],F=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)))});
   const M=A.length;
   // faint body so it still reads as a surface
-  ctx.fillStyle=`rgba(233,230,223,${.06*o.alpha})`;for(let j=0;j<M-1;j++){ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
+  for(let j=0;j<M-1;j++){ctx.fillStyle=`rgba(233,230,223,${.06*o.alpha*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
   // string lines along the sweep (root → tip), like stretched threads
-  const L=26,CH=Math.max(6,Math.round(M/40));ctx.lineWidth=.7;ctx.lineJoin='round';
+  const L=26,CH=Math.max(3,Math.round(M/90));ctx.lineWidth=.7;ctx.lineJoin='round';
   for(let k=0;k<=L;k++){const f=k/L,edge=k===0||k===L,pts=new Array(M);for(let j=0;j<M;j++){const a3=A3[j],b3=B3[j];pts[j]=P([a3[0]+(b3[0]-a3[0])*f,a3[1]+(b3[1]-a3[1])*f,a3[2]+(b3[2]-a3[2])*f])}
     const w=edge?1.4:.9,base=.38+.55*Math.pow(f,1.1);ctx.lineWidth=w;
-    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],al=Math.min(1,(edge?.95:base)*(.25+.75*Math.pow(ag,.8))*o.alpha);
+    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],fd=ag<.55?Math.pow(ag/.55,1.8):1,al=Math.min(1,(edge?.95:base)*fd*o.alpha);
       ctx.strokeStyle=`rgba(236,232,224,${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
   LASTMESH={A3,B3,id:b.id};
   if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach(q=>{if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
