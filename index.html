@@ -151,7 +151,7 @@ kbd{font:inherit;font-size:10.5px;border:1px solid var(--hair2);border-radius:4p
 .sbot{margin-top:auto;position:sticky;bottom:-24px;display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;padding:12px 0 24px;background:rgba(17,18,19,.98)}.sbot .stxt{display:none}
 .sbot #steps{width:100%}.sbot .step{flex:1}
 .go2{height:44px;background:var(--ink);color:#111213;font-size:15px;font-weight:500}.go2:hover{background:#fff}
-.ruler{left:420px!important;right:40px!important}
+.ruler{left:330px!important;right:40px!important}
 @media(max-width:900px){.side{position:static;width:auto;background:none;border:0;padding:16px 20px}.side .tiles{grid-template-columns:repeat(3,1fr)}.side .tile{height:64px}.ruler{left:0!important;right:0!important}}
 @media(prefers-reduced-motion:reduce){.rh i{animation:none}.fade{transition:none}}
 
@@ -211,6 +211,34 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 .keys{margin-top:12px}
 #stage .drag.gone{opacity:0}
 @media(max-height:820px) and (min-width:901px){#pn-info #dm,#pn-info .dmc{display:none}}
+
+/* v32 compact single panel */
+.side{width:300px;padding:12px 16px 0;gap:10px}
+.side .tiles{gap:4px}
+.side .tile{height:44px;border-radius:10px;font-size:7.5px;letter-spacing:.02em;gap:3px}.side .tile svg{width:24px;height:12px}
+.side h1{font-size:24px;margin-top:2px}
+.side .who{font-size:11.5px;margin-top:3px}
+.side .fig{margin-top:10px!important;padding:8px 12px;border-radius:12px;gap:6px}
+.side .fig b{font-size:20px;font-weight:400}.side .fig span{font-size:11px}
+.side #dm{display:block!important;height:22px;margin-top:8px}.side .dmc{display:none!important}
+.side .cap{font-size:12px;line-height:1.6;margin-top:10px}
+.side .src{font-size:10px;margin-top:6px}
+.note{margin-top:10px;padding:9px 12px;border-radius:12px}
+.note .vid{font-size:11.5px}.note .vid::before{width:16px;height:16px;font-size:7px}
+.note .ideal{display:block!important;font-size:10.5px;line-height:1.55;margin-top:5px}
+.ctl{padding:9px 12px 10px;border-radius:12px}
+.ctlt{margin:0 0 2px;font-size:11.5px;font-weight:600;color:var(--ink)}
+.sl{grid-template-columns:28px minmax(0,1fr) 54px;height:25px;gap:8px;font-size:11px}
+.sl output{font-size:10.5px}
+.sl input::-webkit-slider-thumb{width:12px;height:12px;margin-top:-4px}
+.tg{margin-top:8px}.sw,.pill{height:28px;font-size:11px;border-radius:8px}
+.sw i{width:22px;height:13px}.sw i::after{width:9px;height:9px}.sw[aria-pressed=true] i::after{transform:translateX(9px)}
+.keys{font-size:10px;gap:2px 8px;margin-top:8px}kbd{font-size:9.5px;padding:0 4px}
+.rst{font-size:10.5px;margin-top:2px}
+.sbot{grid-template-columns:minmax(0,1fr) 76px;gap:6px;padding:8px 0 14px}
+.sbot .step{height:30px;font-size:11px}.sbot #steps{border-radius:10px}
+.go2{height:36px;font-size:12px;border-radius:10px}
+@media(max-width:900px){.side{width:auto}}
 </style>
 </head>
 <body class="dots">
@@ -226,7 +254,6 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 <aside class="side" id="side">
   <div class="tiles" id="tiles"></div>
   <div class="fade" id="hx"><h1 id="head"></h1><p class="ko" id="copy"></p><p class="who" id="who"></p></div>
-  <div class="ptabs" role="tablist"><button role="tab" data-pn="info" aria-selected="true">정보</button><button role="tab" data-pn="ctl" aria-selected="false">궤적 만지기</button></div>
   <div class="pane" id="pn-info">
   <p class="fig"><b id="big"></b><span>초당 날갯짓</span></p>
   <canvas id="dm" aria-hidden="true"></canvas><span class="dmc">날갯짓 모양</span>
@@ -234,7 +261,7 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
   <div class="note"><a class="vid" id="vid" target="_blank" rel="noopener"></a>
   <p class="ideal">바람이나 자세 변화가 없는 <b>이상적인 상황</b>을 가정한 궤적이에요. 실제 새는 날 때마다 조금씩 달라요.</p></div></div>
 
-  <section class="ctl pane" id="pn-ctl" aria-label="궤적 조절" hidden>
+  <section class="ctl pane" id="pn-ctl" aria-label="궤적 조절"><p class="ctlt">궤적 만지기</p>
     <label class="sl"><span>폭</span><input type="range" id="c-amp" min="0.4" max="1.6" step="0.05" value="1"><output id="o-amp">100%</output></label>
     <label class="sl"><span>속도</span><input type="range" id="c-freq" min="0.4" max="2" step="0.05" value="1"><output id="o-freq">100%</output></label>
     <label class="sl"><span>방향</span><input type="range" id="c-turn" min="-1" max="1" step="0.05" value="0"><output id="o-turn">직진</output></label>
@@ -610,8 +637,8 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T
   {const h=k=>HELD.has(k)?1:0,dx=h('ArrowRight')-h('ArrowLeft'),dy=h('ArrowUp')-h('ArrowDown');TGT.turn=dx?dx*.9:SLV.turn;TGT.climb=dy?dy*.4:SLV.climb;if(window.__showC){__showC('turn',TGT.turn);__showC('climb',TGT.climb)}}
   {const a=1-Math.exp(-dt*5);for(const k in TGT){const d=TGT[k]-CTRL[k];CTRL[k]=Math.abs(d)<1e-4?TGT[k]:CTRL[k]+d*a}}
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
-  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=420,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
-  if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-90,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
+  const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=mob?0:300,fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
+  if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-160,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
   const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
   zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{(b.mode!=='hover'&&step<2&&(ensureLog(b,T),USELOG=true),render(cv,b,T,cam,o),USELOG=false);drawRuler();drawDots()}requestAnimationFrame(frame)}
@@ -696,7 +723,7 @@ window.__setC=setC;window.__showC=(k,v)=>{const o=$('o-'+k),t=fmtC(k,Math.round(
 ['amp','freq','turn','climb','len'].forEach(k=>{$('c-'+k).addEventListener('input',e=>setC(k,+e.target.value))});
 function resetC(){resetLog();setC('amp',1);setC('freq',1);setC('turn',0);setC('climb',0);setC('len',4)}
 $('reset').onclick=resetC;resetC();
-document.querySelector('.ptabs').onclick=e=>{const x=e.target.closest('button');if(!x)return;document.querySelectorAll('.ptabs button').forEach(y=>y.setAttribute('aria-selected',y===x));$('pn-info').hidden=x.dataset.pn!=='info';$('pn-ctl').hidden=x.dataset.pn!=='ctl';if(x.dataset.pn==='info'&&window.drawDotsNow)drawDotsNow()};
+if(document.querySelector('.ptabs'))document.querySelector('.ptabs').onclick=e=>{const x=e.target.closest('button');if(!x)return;document.querySelectorAll('.ptabs button').forEach(y=>y.setAttribute('aria-selected',y===x));$('pn-info').hidden=x.dataset.pn!=='info';$('pn-ctl').hidden=x.dataset.pn!=='ctl';if(x.dataset.pn==='info'&&window.drawDotsNow)drawDotsNow()};
 {const d=$('drag'),hide=()=>d.classList.add('gone');setTimeout(hide,6000);$('cv').addEventListener('pointerdown',hide,{once:true});$('cv').addEventListener('wheel',hide,{once:true,passive:true})}
 function toggleBird(){CTRL.bird=!CTRL.bird;$('t-bird').setAttribute('aria-pressed',CTRL.bird)}
 $('t-bird').onclick=toggleBird;
