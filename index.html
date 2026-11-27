@@ -470,32 +470,34 @@ function quad(ctx,pts){ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]
 function drawSlat(ctx,P,now,fixed,c){
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
   const pt=now.pt||0,F=now.up?hvF(now):[Math.cos(pt),Math.sin(pt),0],U=now.up?hvU(now):[-Math.sin(pt),Math.cos(pt),0],Lt=[0,0,1];
-  const lerp=(a,b,f)=>[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f],at=(p,...v)=>{let q=p;for(let i=0;i<v.length;i+=2)q=add(q,mul(v[i],v[i+1]));return q};
-  const SC=1,PJ=v=>P(W3(mul(v,SC))),Z=v=>projZ(W3(mul(v,SC)),c),parts=[];
-  const quad=(a,b,e,g,sh,z)=>parts.push({z:z!=null?z:(Z(a)+Z(e))/2,pts:[a,b,e,g],sh});
-  // wings: stacked blades along the span
-  const wing=side=>{const T=[now.tipB[0],now.tipB[1],now.tipB[2]*side],S0=at([0,0,0],Lt,.07*side,U,.03),sp=nrm(sub(T,S0)),span=Math.hypot(...sub(T,S0)),K=24,
-      nn=nrm(crs(sp,F)),shB=Math.abs(nn[1])*.6+.4;
-    for(let i=0;i<K;i++){const f=(i+.5)/K,p0=at(lerp(S0,T,f),U,.05*Math.sin(Math.PI*f)),ch=.14+.5*Math.pow(f,1.4),dir=nrm(add(mul(F,-1),mul(sp,.6*f*f))),e=add(p0,mul(dir,ch)),w=span/K*.4;
-      const a=add(p0,mul(sp,-w)),b=add(p0,mul(sp,w)),g=add(e,mul(sp,-w*.5)),h=add(e,mul(sp,w*.5));quad(a,b,h,g,shB*(.75+.25*f))}
-    // leading edge
-    for(let i=0;i<10;i++){const f0=i/10,f1=(i+1)/10,p0=at(lerp(S0,T,f0),U,.05*Math.sin(Math.PI*f0)),p1=at(lerp(S0,T,f1),U,.05*Math.sin(Math.PI*f1)),th=.03*(1-f0*.7);
-      quad(add(p0,mul(F,th)),add(p1,mul(F,th*.8)),add(p1,mul(F,-th*.8)),add(p0,mul(F,-th)),1)}};
-  // body: tapered slats across the length
-  const body=()=>{const N=20,K=9,L0=.44,L1=-.48;
-    for(let k=0;k<K;k++){const zf=(k/(K-1))*2-1,cz=Math.sqrt(Math.max(0,1-zf*zf)),zo=zf*.075,top=[],bot=[];
-      for(let i=0;i<N;i++){const f=i/(N-1),x=L0+(L1-L0)*f,prof=Math.pow(Math.sin(Math.PI*Math.min(1,.04+f*.98)),.65),hh=(.075*prof+.004)*cz,yc=.015*Math.sin(Math.PI*f);top.push(at([0,0,0],F,x,U,yc+hh,Lt,zo));bot.push(at([0,0,0],F,x,U,yc-hh*.8,Lt,zo))}
-      parts.push({z:Z(at([0,0,0],Lt,zo)),pts:top.concat(bot.reverse()),sh:.78+.22*cz,poly:true})}
-    // beak
-    const h=at([0,0,0],F,.42,U,.02),tip=at([0,0,0],F,.56,U,.0);quad(add(h,mul(U,.02)),tip,tip,add(h,mul(U,-.02)),.95);
-    // tail fan
-    const tl=at([0,0,0],F,-.46);for(let i=0;i<9;i++){const a=(i/8-.5)*.9,dir=nrm(add(mul(F,-1),mul(Lt,Math.sin(a)))),e=add(tl,mul(dir,.28+.05*Math.cos(a*2)));const w=.012;quad(add(tl,mul(Lt,-w)),add(tl,mul(Lt,w)),add(e,mul(Lt,w)),add(e,mul(Lt,-w)),.8)}};
-  wing(1);wing(-1);body();
-  parts.sort((x,y)=>y.z-x.z);
-  for(const q of parts){if(q.body){const S=q.cl.map(PJ),Lp=[],Rp=[];for(let i=0;i<S.length;i++){const a=S[Math.max(0,i-1)],b2=S[Math.min(S.length-1,i+1)],tx=b2[0]-a[0],ty=b2[1]-a[1],m=Math.hypot(tx,ty)||1,r=q.rr[i]*SC*c.scale*.9;Lp.push([S[i][0]-ty/m*r,S[i][1]+tx/m*r]);Rp.push([S[i][0]+ty/m*r,S[i][1]-tx/m*r])}
-      const g=ctx.createLinearGradient(Lp[12][0],Lp[12][1],Rp[12][0],Rp[12][1]);g.addColorStop(0,'rgb(236,240,242)');g.addColorStop(1,'rgb(150,158,162)');ctx.fillStyle=g;ctx.beginPath();Lp.forEach((q2,i)=>i?ctx.lineTo(q2[0],q2[1]):ctx.moveTo(q2[0],q2[1]));for(let i=Rp.length-1;i>=0;i--)ctx.lineTo(Rp[i][0],Rp[i][1]);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(30,34,38,.4)';ctx.lineWidth=.6;ctx.stroke();continue}
-    if(!q.pts)continue;const pp=q.pts.map(PJ),v=Math.round(150+95*q.sh);ctx.fillStyle=`rgb(${v-6},${v},${v+4})`;ctx.strokeStyle='rgba(30,34,38,.55)';ctx.lineWidth=.6;
-    ctx.beginPath();ctx.moveTo(pp[0][0],pp[0][1]);for(let i=1;i<pp.length;i++)ctx.lineTo(pp[i][0],pp[i][1]);ctx.closePath();ctx.fill();ctx.stroke()}}
+  const at=(p,...v)=>{let q=p;for(let i=0;i<v.length;i+=2)q=add(q,mul(v[i],v[i+1]));return q},lerp=(a,b,f)=>[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];
+  const tris=[],LV=nrm([.35,.85,-.45]),O=[0,0,0];
+  const tri=(a,b,e,tone)=>{const A=W3(a),B=W3(b),E=W3(e),n=nrm(crs(sub(B,A),sub(E,A))),z=(projZ(A,c)+projZ(B,c)+projZ(E,c))/3;tris.push({p:[A,B,E],n,z,tone:tone||0})};
+  const quad=(a,b,e,g,t)=>{tri(a,b,e,t);tri(a,e,g,t)};
+  // feather kite with a center crease
+  const feather=(base,dir,side,len,w,nrmv,t)=>{const tip=add(base,mul(dir,len)),m=add(base,mul(dir,len*.38)),L=add(m,mul(side,-w)),R=add(m,mul(side,w)),cr=add(add(base,mul(dir,len*.55)),mul(nrmv,len*.06));tri(base,L,cr,t);tri(L,tip,cr,t);tri(base,cr,R,t+.08);tri(cr,tip,R,t+.08)};
+  const wing=sd=>{const T=[now.tipB[0],now.tipB[1],now.tipB[2]*sd],S0=at(O,Lt,.06*sd,U,.03),E=at(lerp(S0,T,.45),U,.06,F,.04),sp=nrm(sub(T,S0)),nv0=nrm(crs(sp,F)),nv=nv0[1]*sd>=0?nv0:mul(nv0,-1);
+    const lead=f=>f<.45?lerp(S0,E,f/.45):lerp(E,T,(f-.45)/.55);
+    // primaries
+    for(let i=0;i<9;i++){const f=.5+.5*i/8,b0=lead(f),dir=nrm(add(mul(F,-1),mul(sp,.25+.9*f*f))),len=.26+.24*(1-Math.abs(f-.82)*1.6);feather(add(b0,mul(F,-.02)),dir,nrm(crs(nv,dir)),len*1.1,.045,nv,-.12)}
+    // secondaries
+    for(let i=0;i<9;i++){const f=.06+.48*i/8,b0=lead(f),dir=nrm(add(mul(F,-1),mul(sp,.15))),len=.24+.04*Math.sin(i);feather(add(b0,mul(F,-.03)),dir,nrm(crs(nv,dir)),len,.05,nv,-.04)}
+    // coverts
+    for(let i=0;i<11;i++){const f=.02+.86*i/10,b0=lead(f),dir=nrm(add(mul(F,-1),mul(sp,.3*f))),len=.11+.04*(1-f);feather(add(b0,mul(nv,.008)),dir,nrm(crs(nv,dir)),len*1.2,.045,nv,.12)}
+    // leading edge strip
+    for(let i=0;i<8;i++){const f0=i/8,f1=(i+1)/8,a=lead(f0),b=lead(f1);quad(add(a,mul(F,.025)),add(b,mul(F,.02)),add(b,mul(F,-.03)),add(a,mul(F,-.035)),.2)}};
+  // low-poly body: rings lofted head→tail
+  const R=[[.40,.032],[.30,.05],[.16,.078],[0,.082],[-.16,.07],[-.30,.045],[-.40,.025]],NS=6,rings=R.map(([x,r],ri)=>{const out=[];for(let k=0;k<NS;k++){const a=k/NS*TAU+(ri%2?Math.PI/NS:0);out.push(at(O,F,x,U,Math.cos(a)*r*.9+.01,Lt,Math.sin(a)*r))}return out});
+  for(let r=0;r<rings.length-1;r++)for(let k=0;k<NS;k++){const a=rings[r][k],b=rings[r][(k+1)%NS],e=rings[r+1][(k+1)%NS],g=rings[r+1][k];tri(a,b,g,.1);tri(b,e,g,.1)}
+  const head=at(O,F,.47,U,.02),beak=at(O,F,.62,U,-.005);for(let k=0;k<NS;k++){tri(rings[0][k],head,rings[0][(k+1)%NS],.12)}
+  const bk=[at(O,F,.45,U,.032),at(O,F,.45,Lt,.018,U,.0),at(O,F,.45,Lt,-.018,U,.0),at(O,F,.45,U,-.01)];tri(bk[0],bk[1],beak,.3);tri(bk[0],beak,bk[2],.3);tri(bk[1],bk[3],beak,.22);tri(bk[2],beak,bk[3],.22);
+  const tl=at(O,F,-.38,U,.01);for(let i=0;i<7;i++){const a=(i/6-.5)*.8,dir=nrm(add(mul(F,-1),mul(Lt,Math.sin(a)))),nv=U;feather(tl,dir,nrm(crs(nv,dir)),.3-.06*Math.abs(i-3)/3,.04,nv,0)}
+  wing(1);wing(-1);
+  tris.sort((x,y)=>y.z-x.z);
+  const day=document.documentElement.dataset.sky==='day',C0=day?[34,46,58]:[30,42,54],C1=day?[190,220,218]:[200,226,222];
+  ctx.lineJoin='round';
+  for(const t of tris){const dt_=t.n[0]*LV[0]+t.n[1]*LV[1]+t.n[2]*LV[2],lam=Math.pow((Math.abs(dt_)*.8+(dt_>0?.2:0)),1.5),k=Math.max(0,Math.min(1,.04+.96*lam+t.tone)),col=C0.map((v,i)=>Math.round(v+(C1[i]-v)*k)),pp=t.p.map(P);
+    ctx.fillStyle=`rgb(${col})`;ctx.strokeStyle=`rgb(${col})`;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pp[0][0],pp[0][1]);ctx.lineTo(pp[1][0],pp[1][1]);ctx.lineTo(pp[2][0],pp[2][1]);ctx.closePath();ctx.fill();ctx.stroke()}}
 function drawBird(ctx,P,now,fixed){
   const d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l;
   const W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
