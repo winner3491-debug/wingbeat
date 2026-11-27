@@ -239,6 +239,19 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 .sbot .step{height:30px;font-size:11px}.sbot #steps{border-radius:10px}
 .go2{height:36px;font-size:12px;border-radius:10px}
 @media(max-width:900px){.side{width:auto}}
+
+/* v34 blend panel into stage */
+.side{background:linear-gradient(90deg,rgba(17,18,19,.72) 0%,rgba(17,18,19,.45) 70%,rgba(17,18,19,0) 100%);border-right:0;width:310px}
+.side .tile{background:transparent;border:1px solid rgba(255,255,255,.08)}
+.side .tile:hover{background:rgba(255,255,255,.05)}
+.side .fig,.note,.ctl{background:transparent;border-radius:0;padding-left:0;padding-right:0}
+.side .fig{border-top:1px solid rgba(255,255,255,.08);padding-top:12px;padding-bottom:0}
+.note{border-top:1px solid rgba(255,255,255,.08);padding-top:10px;padding-bottom:0}
+.ctl{border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+.sw,.pill{background:transparent;border:1px solid rgba(255,255,255,.1)}
+.sbot{background:none}
+.sbot #steps{background:transparent;border:1px solid rgba(255,255,255,.1)}
+.ptabs{display:none}
 </style>
 </head>
 <body class="dots">
