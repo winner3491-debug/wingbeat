@@ -314,7 +314,7 @@ html,body,.dots,#stage{transition:background-color .6s}
   <span class="rgt"><button class="skyt" id="skyt" aria-label="낮 하늘로 바꾸기"><span data-v="night">밤</span><span data-v="day">낮</span></button><span class="clock"><span class="lab">LOCAL TIME</span><b id="clock">SEL 00:00</b></span></span>
 </div>
 
-<div id="stage" class="dots"><canvas id="cv" aria-label="선택한 새의 날개 궤적 애니메이션"></canvas><div class="drag" id="drag">드래그해서 돌려 보기 · 스크롤로 확대 · 더블클릭으로 원래대로</div></div>
+<div id="stage" class="dots"><canvas id="cv" aria-label="선택한 새의 날개 궤적 애니메이션"></canvas><div class="drag" id="drag">드래그해서 돌려 보기 · 스크롤로 확대 · 두 번 눌러 원래 각도로</div></div>
 
 <aside class="side" id="side">
   <div class="tiles" id="tiles"></div>
@@ -711,8 +711,9 @@ pb.onclick=()=>{playing=!playing;syncPlay()};
 $('chip').onclick=()=>{alt=!alt;$('chip').textContent=alt?'VIEW · 조각':'VIEW · 사진';$('chip').setAttribute('aria-pressed',alt)};
 let drag=null,zoomK=1,zoomT=1;
 stage.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaMode===1?e.deltaY*16:e.deltaY;zoomT=Math.max(.5,Math.min(3.5,zoomT*Math.exp(-Math.max(-120,Math.min(120,d))*.0012)))},{passive:false});
-stage.addEventListener('dblclick',()=>zoomT=1);
-let vy=0,vp=0;stage.addEventListener('pointerdown',e=>{vy=vp=0;drag=[e.clientX,e.clientY];stage.setPointerCapture(e.pointerId)});
+let VIEWT=null,lastTap=0,tapXY=null;function resetView(){const b=BIRDS[cur];zoomT=1;vy=vp=0;VIEWT={y:(b.yaw!=null?b.yaw:20)*Math.PI/180,p:b.pitch}}
+stage.addEventListener('dblclick',resetView);
+let vy=0,vp=0;stage.addEventListener('pointerdown',e=>{vy=vp=0;VIEWT=null;if(e.pointerType!=='mouse'){const n=performance.now();if(n-lastTap<320&&tapXY&&Math.hypot(e.clientX-tapXY[0],e.clientY-tapXY[1])<40){lastTap=0;resetView();return}lastTap=n;tapXY=[e.clientX,e.clientY]}drag=[e.clientX,e.clientY];stage.setPointerCapture(e.pointerId)});
 stage.addEventListener('pointermove',e=>{if(!drag)return;const ay=(e.clientX-drag[0])*.008,ap=(e.clientY-drag[1])*.006;yaw+=ay;pitch=Math.max(-1.5,Math.min(1.55,pitch+ap));vy=vy*.5+ay*.5;vp=vp*.5+ap*.5;drag=[e.clientX,e.clientY];syncYaw()});
 stage.addEventListener('pointerup',()=>drag=null);
 let rd=null;const PPS=120;
@@ -748,7 +749,7 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T
   if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-160,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const tx=fitA(PAN.x,L-bx.l,R-bx.r),ty=fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*3),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
   const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;if(b.mode!=='hover'&&b.mode!=='soar'){const S1=KIN[b.mode](T).S,S0=KIN[b.mode](T-2).S,v=Math.max(.2,Math.hypot(S1[0]-S0[0],S1[2]-S0[2])/2);o.win=Math.min(o.win,(b.mode==='flapglide'?1.5:2.2)*CTRL.len/v)}o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
-  zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{(step<2&&(ensureLog(b,T),USELOG=true),render(cv,b,T,cam,o),USELOG=false);drawRuler();drawDots()}requestAnimationFrame(frame)}
+  zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*9));if(VIEWT&&!drag){const k=1-Math.exp(-dt*6);let dy=VIEWT.y-yaw;while(dy>Math.PI)dy-=TAU;while(dy<-Math.PI)dy+=TAU;yaw+=dy*k;pitch+=(VIEWT.p-pitch)*k;if(Math.abs(dy)<1e-3&&Math.abs(VIEWT.p-pitch)<1e-3){yaw=VIEWT.y;pitch=VIEWT.p;VIEWT=null}syncYaw()}if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{(step<2&&(ensureLog(b,T),USELOG=true),render(cv,b,T,cam,o),USELOG=false);drawRuler();drawDots()}requestAnimationFrame(frame)}
 
 // ---------- compare page ----------
 const CMP={wing:{goose:'길고 좁은 날개',woodpecker:'짧고 둥근 날개',hummingbird:'짧고 단단한 날개',vulture:'넓고 긴 날개, 갈라진 끝깃',hawk:'짧고 둥근 날개, 긴 꼬리'}};
