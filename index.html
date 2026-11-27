@@ -282,7 +282,13 @@ kbd{border:0;background:var(--sf2);border-radius:5px;padding:1px 5px}
 html,body,.dots,#stage{transition:background-color .6s}
 :root[data-sky=day]{color-scheme:light;--bg:#e9f0f5;--panel:#f4f7f9;--ink:#1f262e;--mute:#66717b;--hair:rgba(31,38,46,.1);--hair2:rgba(31,38,46,.2)}
 :root[data-sky=day] body,:root[data-sky=day] .dots{background-color:#dfe9f1;background-image:radial-gradient(rgba(31,38,46,.07) 1px,transparent 1.3px),radial-gradient(ellipse at 60% 30%,rgba(255,255,255,.75),transparent 60%),linear-gradient(180deg,#a9c8e2 0%,#c9dcec 38%,#e6eef4 72%,#f1f4f6 100%);background-size:22px 22px,100% 100%,100% 100%}
-:root[data-sky=day] .side{background:linear-gradient(90deg,rgba(241,245,248,.78) 0%,rgba(241,245,248,.5) 70%,rgba(241,245,248,0) 100%)}
+:root[data-sky=day] .side{background:linear-gradient(90deg,rgba(196,219,238,.82) 0%,rgba(205,225,241,.55) 70%,rgba(205,225,241,0) 100%)}
+:root[data-sky=day] .side .fig b{color:#2e6aa8}
+:root[data-sky=day] .side h1{color:#1d3f63}
+:root[data-sky=day] .side .tile[aria-pressed=true],:root[data-sky=day] .side .tile[aria-pressed=true]:hover{background:#2e6aa8;border-color:#2e6aa8;color:#fff}
+:root[data-sky=day] .sbot .step[aria-selected=true],:root[data-sky=day] .go2,:root[data-sky=day] .ico[aria-expanded=true],:root[data-sky=day] .menu [aria-current=true]{background:#2e6aa8;color:#fff}
+:root[data-sky=day] .sw[aria-pressed=true] i{background:#2e6aa8}
+:root[data-sky=day] .sl input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#2e6aa8 var(--p),rgba(31,38,46,.15) var(--p))!important}
 :root[data-sky=day] .clean .side{background:none}
 :root[data-sky=day] .side .tile{border-color:rgba(31,38,46,.14);color:#4d5862}
 :root[data-sky=day] .side .tile:hover{background:rgba(31,38,46,.06);color:var(--ink)}
@@ -304,6 +310,7 @@ html,body,.dots,#stage{transition:background-color .6s}
 :root[data-sky=day] #stage::after{background:radial-gradient(ellipse 75% 65% at 52% 42%,transparent 45%,rgba(120,150,180,.25) 100%)}
 :root[data-sky=day] .hud.bar,:root[data-sky=day] .bar{background:none}
 :root[data-sky=day] #stage .drag{background:rgba(255,255,255,.6)}
+:root[data-sky=day] .side .tile[aria-pressed=true],:root[data-sky=day] .side .tile[aria-pressed=true]:hover,:root[data-sky=day] .sbot .step[aria-selected=true],:root[data-sky=day] .go2,:root[data-sky=day] .ico[aria-expanded=true],:root[data-sky=day] .menu [aria-current=true],:root[data-sky=day] .skyt [data-v=day]{background:#2e6aa8!important;border-color:#2e6aa8!important;color:#fff!important}
 </style>
 </head>
 <body class="dots">
@@ -738,7 +745,7 @@ function drawRuler(){const [x,W,H]=fit(rc);if(!W)return;const mid=W/2,base=H-26;
   x.font=`600 12px ${FONT}`;x.fillText(`t ${T.toFixed(2)}s · 주기 ${Math.round(state(BIRDS[cur],T).cyc*100)}%`,mid,8+4);}
 function drawDots(){if(!dm)return;const [x,W,H]=fit(dm);if(!W)return;const b=BIRDS[cur],cols=22,rows=5,gx=W/cols,gy=H/rows,now=state(b,T).cyc,ci=Math.floor(now*cols);
   for(let i=0;i<cols;i++){const st=state(b,b.cyc*(i+.5)/cols),v=Math.abs(b.mode==='hover'?st.tipB[0]:st.tipB[1])/0.9,lit=Math.round(st.w>.5?1+v*(rows-1):0);
-    for(let j=0;j<rows;j++){const on=rows-1-j<lit;x.fillStyle=i===ci?(on?'#fff':'rgba(255,255,255,.35)'):on?'rgba(255,255,255,.6)':'rgba(255,255,255,.14)';x.beginPath();x.arc(gx*(i+.5),gy*(j+.5),i===ci?2:1.5,0,TAU);x.fill()}}}
+    for(let j=0;j<rows;j++){const on=rows-1-j<lit;const dy_=document.documentElement.dataset.sky==='day';x.fillStyle=dy_?(i===ci?(on?'#e8664a':'rgba(232,102,74,.35)'):on?`rgba(${46+j*18},${110+j*14},${196-j*6},${.55+.45*(1-j/rows)})`:'rgba(46,96,150,.14)'):(i===ci?(on?'#fff':'rgba(255,255,255,.35)'):on?'rgba(255,255,255,.6)':'rgba(255,255,255,.14)');x.beginPath();x.arc(gx*(i+.5),gy*(j+.5),i===ci?2:1.5,0,TAU);x.fill()}}}
 function tick(){const d=new Date(),h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0');$('clock').textContent=`SEL ${h}:${m}`}
 tick();setInterval(tick,15000);
 let last=0;
