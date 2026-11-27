@@ -416,7 +416,7 @@ const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true},TGT={amp:1,freq:1,turn:
 let USELOG=false;const SLV={turn:0,climb:0},LOG={id:null,s0:0,h:1/120,X:[],D:[]};
 const rotY=(v,a)=>{const c=Math.cos(a),s=Math.sin(a);return[v[0]*c-v[2]*s,v[1],v[0]*s+v[2]*c]};
 function logStep(b){const i=LOG.X.length-1,h=LOG.h,sv=LOG.s0+i*h,fm=b.mode==='soar'?1:CTRL.freq,u=sv*fm,e=1e-3,A=KIN[b.mode](u-e).S,C=KIN[b.mode](u+e).S,vx=(C[0]-A[0])/(2*e),vz=(C[2]-A[2])/(2*e),vh=Math.hypot(vx,vz),Dl=LOG.D[i],r=rotY([vx,0,vz],Dl),X=LOG.X[i];
-  if(b.mode==='hover'){const cyh=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));LOG.X.push([X[0]+CTRL.turn*1.4*h,X[1]+cyh*1.6*h,X[2]]);LOG.D.push(Dl);return}
+  if(b.mode==='hover'){const cyh=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));const mag=Math.min(1,(Math.abs(CTRL.turn)+Math.abs(CTRL.climb))*2.2),v=1.1*mag;LOG.X.push([X[0]+Math.cos(Dl)*v*h,X[1]+cyh*1.8*h,X[2]+Math.sin(Dl)*v*h]);LOG.D.push(Dl+CTRL.turn*1.3*h);return}
   const cy=CTRL.climb>0?CTRL.climb*Math.max(0,Math.min(1,(3.6-X[1])/1.4)):CTRL.climb*Math.max(0,Math.min(1,(X[1]+1.5)/.7));
   LOG.X.push([X[0]+r[0]*h,X[1]+cy*vh*h,X[2]+r[2]*h]);LOG.D.push(Dl+CTRL.turn*1.1*Math.max(vh,.7)*h)}
 function ensureLog(b,t){const end=()=>LOG.s0+(LOG.X.length-1)*LOG.h;
