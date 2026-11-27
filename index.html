@@ -345,7 +345,7 @@ html,body,.dots,#stage{transition:background-color .6s}
     <button class="lnk rst" id="reset">↺ 처음대로</button>
   </section>
 
-  <p class="keys kout"><span><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 높이</span><span><kbd>B</kbd> 새</span><span><kbd>1</kbd>–<kbd>5</kbd> 새 고르기</span></p>
+  <p class="keys kout"><span><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 높이</span><span><kbd>F</kbd> 새</span><span><kbd>1</kbd>–<kbd>5</kbd> 새 고르기</span></p>
   <div class="sbot">
     <p class="stxt fade" id="stxt"></p>
     <div role="tablist" id="steps"><button class="step" role="tab" data-s="0">경로</button><button class="step" role="tab" data-s="1">주기</button><button class="step" role="tab" data-s="2">궤적</button></div>
@@ -737,7 +737,7 @@ rc.addEventListener('pointerup',()=>rd=null);
 const WASD={KeyW:'ArrowUp',KeyA:'ArrowLeft',KeyS:'ArrowDown',KeyD:'ArrowRight'};
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;if(WASD[e.code]&&!e.metaKey&&!e.ctrlKey){e.preventDefault();HELD.add(WASD[e.code]);return}const k=e.key;
   if(k.startsWith('Arrow')){e.preventDefault();HELD.add(k)}
-  else if(k==='b'||k==='B'||k==='ㅠ'){toggleBird()}
+  else if(e.code==='KeyF'){toggleBird()}
   else if('12345'.includes(k)&&k.length===1){setBird(+k-1)}
   else if(k===' '){e.preventDefault();pb.click()}
   else if(k==='r'||k==='R'){resetC()}});
