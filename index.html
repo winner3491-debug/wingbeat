@@ -605,9 +605,44 @@ function initGL(){if(GL!==null)return GL;try{if(!window.THREE)throw 0;
       [-1,1].forEach(sd=>{const ex=128+sd*30,ey=112;x.fillStyle='rgba(190,170,150,.35)';x.beginPath();x.ellipse(ex,ey+2,22,17,sd*.35,0,TAU);x.fill();x.fillStyle='#0d0908';x.beginPath();x.ellipse(ex,ey,16,12,sd*.3,0,TAU);x.fill();x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.arc(ex-sd*3,ey-4,2.2,0,TAU);x.fill()});
       x.fillStyle='#e8cfc2';x.beginPath();x.moveTo(124,140);x.quadraticCurveTo(128,134,132,140);x.lineTo(129,178);x.lineTo(127,178);x.closePath();x.fill();x.fillStyle='rgba(150,110,95,.5)';x.fillRect(127.3,140,1.4,34);
       const ft=new THREE.CanvasTexture(cv);const cg=new THREE.BufferGeometry(),AR=16,AS=40,AA=1.25,cp=[],cu=[],ci=[];for(let i=0;i<=AR;i++){const a=AA*i/AR;for(let j=0;j<=AS;j++){const t=TAU*j/AS,x=Math.sin(a)*Math.cos(t),y=Math.sin(a)*Math.sin(t);cp.push(x,y,Math.cos(a));cu.push(.5+.5*x/Math.sin(AA),.5+.5*y/Math.sin(AA))}}for(let i=0;i<AR;i++)for(let j=0;j<AS;j++){const a0=i*(AS+1)+j,b0=a0+1,c0=a0+AS+1,d0=c0+1;ci.push(a0,c0,b0,b0,c0,d0)}cg.setAttribute('position',new THREE.Float32BufferAttribute(cp,3));cg.setAttribute('uv',new THREE.Float32BufferAttribute(cu,2));cg.setIndex(ci);
-      face=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({map:ft,transparent:true,alphaTest:.3,side:THREE.DoubleSide}));face.matrixAutoUpdate=false;face.frustumCulled=false;grp.add(face)}
-    meshes[id]={grp,top,bel,tube,face};grp.visible=false;scene.add(grp);void 0});
+      face=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({map:ft,transparent:true,alphaTest:.3,side:THREE.BackSide}));face.matrixAutoUpdate=false;face.frustumCulled=false;grp.add(face)}
+    let rig=null;if(id==='owl'){rig=buildOwlRig(grp);top.visible=bel.visible=tube.visible=false}
+    meshes[id]={grp,top,bel,tube,face,rig};grp.visible=false;scene.add(grp);void 0});
+  scene.add(new THREE.HemisphereLight(0xfff6ea,0x8a7c6c,.62));const dl=new THREE.DirectionalLight(0xfff0dc,.7);dl.position.set(1.5,4,2.5);scene.add(dl);const dl2=new THREE.DirectionalLight(0xcfd8ff,.18);dl2.position.set(-2,-1,-3);scene.add(dl2);
   GL={rd,scene,cam,meshes}}catch(e){GL=false}return GL}
+function buildOwlRig(grp){
+  const vc=(geo,fn)=>{const P=geo.attributes.position,C=new Float32Array(P.count*3);for(let i=0;i<P.count;i++){const c=fn(P.getX(i),P.getY(i),P.getZ(i));C[i*3]=c[0];C[i*3+1]=c[1];C[i*3+2]=c[2]}geo.setAttribute('color',new THREE.BufferAttribute(C,3));return geo};
+  const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t),GOLD=[.83,.66,.42],GREY=[.72,.69,.66],WHITE=[.97,.94,.9];
+  const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.92,metalness:0});
+  const prof=[[-.4,0],[-.36,.04],[-.28,.09],[-.16,.15],[-.03,.175],[.08,.165],[.16,.14],[.21,.135],[.29,.16],[.36,.15],[.41,.1],[.44,.0]].map(([x,r])=>new THREE.Vector2(r,x));
+  const lg=new THREE.LatheGeometry(prof,40);lg.rotateZ(-Math.PI/2);lg.computeVertexNormals();
+  const body=new THREE.Mesh(vc(lg,(x,y,z)=>{const t=sm((y+.02)/.16);const g=mix(GOLD,GREY,.3+.2*Math.sin(x*23+z*31));return mix(WHITE,g,t*(x>.2?.85:1))}),mat);
+  const head=new THREE.Object3D();
+  const sh=new THREE.Shape();sh.moveTo(0,-.32);sh.quadraticCurveTo(.55,-.56,.93,-.24);sh.quadraticCurveTo(1.04,0,.93,.24);sh.quadraticCurveTo(.55,.56,0,.32);sh.closePath();
+  const fg=new THREE.ShapeGeometry(sh,8);
+  const fm=c=>new THREE.MeshStandardMaterial({color:new THREE.Color(...c),roughness:.95,side:THREE.DoubleSide});
+  const M={prim:fm([.86,.8,.74]),sec:fm([.9,.85,.79]),cov:fm([.78,.6,.38]),mar:fm([.82,.68,.48]),tail:fm([.8,.68,.5])};
+  const parts=[body,head];[body,head].forEach(m=>{m.matrixAutoUpdate=false;m.frustumCulled=false;grp.add(m)});
+  let jn=0;const mk=(k)=>{const mt=M[k].clone(),j=.9+.12*Math.sin(++jn*2.39);mt.color.multiplyScalar(j);const m=new THREE.Mesh(fg,mt);m.matrixAutoUpdate=false;m.frustumCulled=false;grp.add(m);return m};
+  const R={body,head,wing:[1,-1].map(()=>({prim:Array.from({length:10},()=>mk('prim')),sec:Array.from({length:12},()=>mk('sec')),cov:Array.from({length:14},()=>mk('cov')),mar:Array.from({length:10},()=>mk('mar'))})),tail:Array.from({length:9},()=>mk('tail'))};
+  return R}
+function poseOwlRig(M,now,fixed){
+  const R=M.rig,d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
+  const pt=now.pt||0,F=now.up?hvF(now):[Math.cos(pt),Math.sin(pt),0],U=now.up?hvU(now):[-Math.sin(pt),Math.cos(pt),0],Lt=[0,0,1];
+  const at=(...v)=>{let q=[0,0,0];for(let i=0;i<v.length;i+=2)q=add(q,mul(v[i],v[i+1]));return q},lerp=(a,b,f)=>[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];
+  const setM=(m,X,Y,Z,P)=>{const x=W3(X),y=W3(Y),z=W3(Z),p=W3(P);m.matrix.set(x[0],y[0],z[0],p[0],x[1],y[1],z[1],p[1],x[2],y[2],z[2],p[2],0,0,0,1);m.matrixWorldNeedsUpdate=true};
+  setM(R.body,F,mul(U,1.05),mul(Lt,.97),at(F,-.04,U,-.01));
+  const hc=at(F,.25,U,-.01);
+  if(M.face)setM(M.face,mul(Lt,.152),mul(U,.163),mul(F,.155),hc);
+  const fe=(m,base,dir,nv,len,w,off)=>{const sd=nrm(crs(nv,dir));setM(m,mul(dir,len),mul(sd,w),nv,add(base,mul(nv,off)))};
+  [1,-1].forEach((sd,wi)=>{const W=R.wing[wi],T=[now.tipB[0],now.tipB[1],now.tipB[2]*sd],S0=at(F,.08,U,.06,Lt,.1*sd),sp=nrm(sub(T,S0)),E=add(lerp(S0,T,.4),add(mul(F,.07),mul(U,.02)));
+    let nv=nrm(crs(sp,F));if(nv[0]*U[0]+nv[1]*U[1]+nv[2]*U[2]<0)nv=mul(nv,-1);
+    const back=mul(F,-1),hand=nrm(sub(T,E));
+    W.prim.forEach((m,i)=>{const k=i/9,b=lerp(E,T,.1+.82*k),dir=nrm(add(back,mul(hand,.25+1.6*k*k))),len=.27+.16*Math.sin(Math.PI*Math.min(1,k*1.15))+.02;fe(m,b,dir,nv,len,.12,-.002*i)});
+    W.sec.forEach((m,i)=>{const k=i/11,b=lerp(S0,E,.05+.95*k),dir=nrm(add(back,mul(sp,.12*k))),len=.29+.02*Math.sin(i*1.7);fe(m,b,dir,nv,len,.11,.004+.001*i)});
+    W.cov.forEach((m,i)=>{const k=i/13,b=k<.55?lerp(S0,E,k/.55):lerp(E,T,(k-.55)/.45*.75),dir=nrm(add(back,mul(sp,.35*k))),len=.17-.04*k;fe(m,add(b,mul(F,.01)),dir,nv,len,.11,.016)});
+    W.mar.forEach((m,i)=>{const k=i/9,b=k<.6?lerp(S0,E,k/.6):lerp(E,T,(k-.6)/.4*.4),dir=nrm(add(back,mul(sp,.3*k))),len=.1;fe(m,add(b,mul(F,.025)),dir,nv,len,.1,.026)})});
+  const tb=at(F,-.22,U,.0);R.tail.forEach((m,i)=>{const a=(i/8-.5)*1.0,dir=nrm(add(mul(F,-1),mul(Lt,Math.sin(a)*.9))),len=.23-.04*Math.abs(i-4)/4;fe(m,tb,dir,U,len,.1,.002*Math.abs(i-4))})}
 function bodyW(id,v){const b=TOP[id].b,x=v*(b.length-1),i=Math.min(b.length-2,Math.floor(x)),f=x-i;return b[i]+(b[i+1]-b[i])*f}
 function poseMesh(mesh,id,b,now,fixed,belly){
   const T=TOP[id],Lr=LREF[id],pos=mesh.geometry.attributes.position.array,cols=mesh.userData.cols,C=cols.length;
@@ -645,6 +680,7 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
      for(let j=0;j<=RS;j++){const an=TAU*j/RS,zz=bw2*Math.cos(an),sy=Math.sin(an),yy=hh2*sy*(sy<0?.95:1);ff[o3++]=fw;ff[o3++]=Math.cos(an);ff[o3++]=sy;const P=W3(add(add(mul(F,bx),mul(Lt,zz)),mul(U,yy)));pp[k++]=P[0];pp[k++]=P[1];pp[k++]=P[2];uu[q++]=.5+.5*(bw2>1e-6?zz*bw/bw2:zz)/Lr;uu[q++]=1-v}}
    if(M.face){const L=HV*T_.a*2*Lr,bxc=(T_.h-HV)*T_.a*2*Lr,rx=bwH*1.03,ry=bwH*.99,rz=L*1.03,c0=W3(mul(F,bxc)),X=W3(Lt),Y=W3(U),Z=W3(F);M.face.matrix.set(X[0]*rx,Y[0]*ry,Z[0]*rz,c0[0],X[1]*rx,Y[1]*ry,Z[1]*rz,c0[1],X[2]*rx,Y[2]*ry,Z[2]*rz,c0[2],0,0,0,1);M.face.matrixWorldNeedsUpdate=true}
    g_.attributes.fc.needsUpdate=true;g_.attributes.position.needsUpdate=true;g_.attributes.uv.needsUpdate=true;g_.computeVertexNormals()}
+  if(M.rig){M.top.visible=M.bel.visible=M.tube.visible=false;poseOwlRig(M,now,fixed)}
   const dpr=window.devicePixelRatio||1;if(g.w!==W||g.h!==H){g.rd.setPixelRatio(dpr);g.rd.setSize(W,H,false);g.w=W;g.h=H}
   const ca=Math.cos(c.yaw),sa=Math.sin(c.yaw),cb=Math.cos(c.pitch),sb=Math.sin(c.pitch),D=c.dist,f=c.scale*D,n=.05,fr=60;
   const V=new THREE.Matrix4().set(ca,0,-sa,0,-sa*sb,cb,-ca*sb,0,-sa*cb,-sb,-ca*cb,-D,0,0,0,1);
