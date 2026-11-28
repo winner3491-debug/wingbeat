@@ -95,7 +95,7 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 .chd h2{font-size:44px;font-weight:500;letter-spacing:-.035em;margin:0;line-height:1}
 .cctl{display:flex;align-items:center;gap:14px}.cctl .cnote{margin:0}.cbtn{height:36px;padding:0 18px;border:1px solid var(--hair2);border-radius:999px;font-size:13px}.cbtn:hover{border-color:var(--ink)}
 .chd p{margin:8px 0 0;color:var(--mute);font-size:14px}.chd .cnote{font-size:12px}
-.cgrid{display:grid;grid-template-columns:120px repeat(5,minmax(150px,1fr));min-width:900px}
+.cgrid{display:grid;grid-template-columns:110px repeat(6,minmax(130px,1fr));min-width:980px}
 .cgrid>div{border-bottom:1px solid var(--hair);padding:14px 10px;position:relative}
 .cgrid .rl{padding-left:0;font-size:13px;font-weight:500;align-self:stretch}.cgrid .rl span{display:block;font-size:11px;color:var(--mute);font-weight:400;margin-top:2px}
 .cgrid .col{cursor:pointer;transition:background .2s}.cgrid .col.hl{background:rgba(233,230,223,.035)}
@@ -131,7 +131,7 @@ body.cmpon{background:var(--bg)}body.cmpon .hud:not(.bar){visibility:hidden}
 @media(min-width:901px){.evp{position:fixed;left:28px;top:262px;margin:0;z-index:4;max-height:calc(100vh - 400px);overflow:auto}}
 
 .side{position:fixed;left:0;top:76px;bottom:0;width:392px;overflow-y:auto;overflow-x:hidden;padding:8px 28px 24px;z-index:3;display:flex;flex-direction:column;gap:18px;background:linear-gradient(90deg,rgba(17,18,19,.96) 70%,rgba(17,18,19,.82));border-right:1px solid var(--hair);scrollbar-width:thin}
-.side .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.side .tiles{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .side .tile{aspect-ratio:auto;height:58px;gap:4px;font-size:9.5px;letter-spacing:.04em;padding:0 2px}.side .tile svg{width:30px;height:16px}.side .tile small{display:none}
 .side h1{font-size:40px}
 @media(max-height:860px) and (min-width:901px){.side #dm,.side .dmc,.ideal{display:none}.side .cap{font-size:13px;line-height:1.65}}
@@ -345,7 +345,7 @@ html,body,.dots,#stage{transition:background-color .6s}
     <button class="lnk rst" id="reset">↺ 처음대로</button>
   </section>
 
-  <p class="keys kout"><span><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 높이</span><span><kbd>F</kbd> 새</span><span><kbd>1</kbd>–<kbd>5</kbd> 새 고르기</span></p>
+  <p class="keys kout"><span><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 방향</span><span><kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 높이</span><span><kbd>F</kbd> 새</span><span><kbd>1</kbd>–<kbd>6</kbd> 새 고르기</span></p>
   <div class="sbot">
     <p class="stxt fade" id="stxt"></p>
     <div role="tablist" id="steps"><button class="step" role="tab" data-s="0">경로</button><button class="step" role="tab" data-s="1">주기</button><button class="step" role="tab" data-s="2">궤적</button></div>
@@ -359,7 +359,7 @@ html,body,.dots,#stage{transition:background-color .6s}
 
 <section id="cmp" aria-labelledby="cmpT" hidden>
   <div class="cwrap">
-    <header class="chd"><div><h2 id="cmpT">Compare</h2><p>다섯 가지 비행, 같은 규칙으로 나란히</p></div><div class="cctl"><p class="cnote">세로줄을 누르면 그 새를 관측 화면에서 볼 수 있어요</p><button id="cplay" class="cbtn">정지 ‖</button></div></header>
+    <header class="chd"><div><h2 id="cmpT">Compare</h2><p>여섯 가지 비행, 같은 규칙으로 나란히</p></div><div class="cctl"><p class="cnote">세로줄을 누르면 그 새를 관측 화면에서 볼 수 있어요</p><button id="cplay" class="cbtn">정지 ‖</button></div></header>
     <div class="cgrid" id="cgrid"></div>
     <p class="cfoot">움직임은 아래 연구를 바탕으로 단순화한 모델입니다. 화면 속 속도는 눈으로 볼 수 있게 늦췄고, 새 이미지는 AI로 생성했습니다.<br>참고 · 기러기: Usherwood 외 2003, 2016 / 딱다구리: Tobalske 1996, Birds of the World / 벌새: Tobalske 외 2007, National Geographic / 독수리: Durmus &amp; Keskin 2021, Harel 외 2016 / 새매: Bruderer 외 2010, 해리스매 비행 측정(arXiv 2026)</p>
   </div>
@@ -380,6 +380,16 @@ const KIN={
   soar(t){const P=7,th=TAU*t/P,R=2.4,b=0.28,f=1.15,dih=0.06+0.03*Math.sin(TAU*t/1.3);
     const u=((t/P)%1+1)%1,ft=u*P-1.0,FD=1.5,fw=ft>0&&ft<FD?Math.sin(Math.PI*ft/FD)**.6:0,fp=TAU*2*Math.max(0,ft)/FD,e0=Math.asin(dih-Math.sin(b)),e=e0+fw*(0.62*Math.cos(fp)+0.12),sw=fw*0.16*Math.sin(fp),ff=f*(1-0.12*fw*Math.max(0,-Math.sin(fp)));
     return{S:[R*Math.sin(th),0.22*t,R*(1-Math.cos(th))],tip:[ff*Math.cos(e)*Math.sin(sw),ff*Math.sin(e),ff*Math.cos(e)*Math.cos(sw)],w:fw>.05?1:0,cyc:((t/P)%1+1)%1,d:[Math.cos(th),0,Math.sin(th)],l:[-Math.sin(th),0,Math.cos(th)]}},
+  owl:(()=>{const C=7,N=700,seg=t=>t<2.25?0:t<3.8?1:t<4.8?2:t<5.6?3:4,vx=t=>[.95,.9,1.55,.75,.9][seg(t)],X=[0];for(let i=1;i<=N;i++){const a=(i-.5)/N*C;X.push(X[i-1]+vx(a)*C/N)}const XC=X[N];
+    const yf=t=>t<2.25?0:t<3.8?-.12*sm((t-2.25)/1.55):t<4.8?-.12-1.0*Math.pow((t-3.8),1.6):t<5.6?-1.12+.42*sm((t-4.8)/.8):-.7+.7*sm((t-5.6)/1.4);
+    return t=>{const k=Math.floor(t/C),tau=t-k*C,i=Math.min(N-1,Math.floor(tau/C*N)),fr=tau/C*N-i,x=k*XC+X[i]+(X[i+1]-X[i])*fr,sg=seg(tau);
+      let ph,ps,f,w=0,pt=0,beat=0;
+      if(sg===0||sg===4){const T=sg?.7:.75,t0=sg?5.6:0,p=TAU*(tau-t0)/T,env=sm((tau-t0)/.15)*sm(((sg?7:2.25)-tau)/.15);w=env>.5?1:0;beat=(tau-t0)/T;
+        ph=env*(0.62*Math.cos(p)+0.05)+(1-env)*0.08;ps=env*0.16*Math.sin(p);f=1-env*0.12*Math.max(0,-Math.sin(p))}
+      else if(sg===1){ph=.08+.03*Math.sin(TAU*tau/1.2);ps=0;f=1}
+      else if(sg===2){const s=sm((tau-3.8)/.35);ph=.08+s*.45;ps=-s*.95;f=1-s*.5;pt=-.55*s}
+      else{const s=sm((tau-4.8)/.25),r=sm((tau-5.25)/.35);ph=.53-.25*s-.2*r;ps=-.95+1.2*s-.25*r;f=.5+.5*s;pt=-.55+.9*s-.35*r}
+      return{S:[x,yf(tau),0],tip:tipVec(ph,ps,f),w,cyc:tau/C,ph:beat,pt}}})(),
   flapglide(t){const C=2.6,u=((t/C)%1+1)%1,fl=0.42,w=sm(u/0.05)*sm((fl-u)/0.05),p=TAU*3*u/fl;
     const y=u<fl?-0.15+0.3*sm(u/fl):0.15-0.3*sm((u-fl)/(1-fl));
     return{S:[1.6*t,y,0],tip:tipVec(w*0.7*Math.sin(p)+(1-w)*0.05,w*0.2*Math.cos(p),1),w,cyc:u,ph:3*u/fl}}
@@ -411,6 +421,11 @@ const BIRDS=[
   n:'4–5',u:'회/초',nsub:'몇 번 힘차게 치고 활공 · 정지비행은 하지 않는다',
   s:['낮게 오르내리는 길','짧게 치고, 길게 미끄러진다','힘을 쓸 때만 크게'],
   icon:dotsOn(u=>u<.45?[3+u*40,12+(Math.floor(u*18)%2?-6:6)]:[3+u*40,12])}
+ ,{id:'owl',word:'Silent',ko:'원숭이올빼미',en:'Barn owl',mode:'owl',tag:'SILENT · STOOP',tk:'저소음 비행·급강하',cyc:7,win:3.5,pitch:.28,zoom:.3,yaw:28,ox:.6,
+  head:'고요.',copy:'소리 없이 난다',
+  n:'≈4',u:'회/초',nsub:'큰 날개로 느리게 치고 길게 미끄러짐 · 먹이를 보면 급강하',
+  s:['낮게 미끄러지는 길','느리게 치고, 조용히 미끄러진다','접고 내리꽂는다'],
+  icon:dotsOn(u=>u<.55?[3+u*40,12+(u<.3?(Math.floor(u*20)%2?-5:5):0)]:u<.75?[3+u*40,12+(u-.55)*45]:[3+u*40,21-(u-.75)*36])}
 ];
 const CTRL={amp:1,freq:1,turn:0,climb:0,len:4,bird:true},TGT={amp:1,freq:1,turn:0,climb:0,len:4},HELD=new Set();
 let USELOG=false;const SLV={turn:0,climb:0},LOG={id:null,s0:0,h:1/120,X:[],D:[]};
@@ -537,10 +552,10 @@ function drawBird(ctx,P,now,fixed){
 
 
 // ---------- photo frames ----------
-const ANC={goose:[.42,.56],woodpecker:[.47,.56],hummingbird:[.47,.37],hawk:[.50,.58],vulture:[.5,.5]};
-const SPAN={goose:1.75,woodpecker:1.6,hummingbird:1.7,vulture:2.3,hawk:1.7};
+const ANC={owl:[.49,.6],goose:[.42,.56],woodpecker:[.47,.56],hummingbird:[.47,.37],hawk:[.50,.58],vulture:[.5,.5]};
+const SPAN={owl:1.9,goose:1.75,woodpecker:1.6,hummingbird:1.7,vulture:2.3,hawk:1.7};
 const SEQ={hummingbird:[0,1,2,3,2,1]},OFF={hummingbird:0};
-const NIMG={goose:8,woodpecker:8,hummingbird:8,hawk:8,vulture:4},NF={goose:8,woodpecker:7,hummingbird:8,hawk:8},REST={woodpecker:7,hawk:2};
+const NIMG={goose:8,woodpecker:8,hummingbird:8,hawk:8,vulture:4,owl:8},NF={goose:8,woodpecker:7,hummingbird:8,hawk:8,owl:8},REST={woodpecker:7,hawk:2,owl:2};
 const FR={};Object.keys(NIMG).forEach(id=>FR[id]=Array.from({length:NIMG[id]},(_,i)=>{const im=new Image();im.decoding='async';im.src=`birds/${id}-${i}.webp`;return im}));
 function mix(b,t){const k=KIN[b.mode](t);
   if(b.mode==='soar'){const x=((t/2.4)%4+4)%4,i=Math.floor(x),f=sm(x-i);return[[i,1-f],[(i+1)%4,f]]}
@@ -553,14 +568,14 @@ function drawPhoto(ctx,b,t,pos,scale,alpha,sx,rot){const L=mix(b,t),im0=FR[b.id]
   ctx.restore()}
 
 // ---------- textured 3D bird (three.js) ----------
-const TOP={goose:{"a": 0.5425, "h": 0.3633, "b": [0.0, 0.013, 0.017, 0.026, 0.036, 0.04, 0.036, 0.029, 0.026, 0.028, 0.029, 0.033, 0.04, 0.053, 0.067, 0.083, 0.1, 0.131, 0.132, 0.133, 0.133, 0.134, 0.135, 0.136, 0.136, 0.137, 0.138, 0.139, 0.14, 0.14, 0.141, 0.142, 0.143, 0.143, 0.144, 0.145, 0.111, 0.105, 0.1, 0.111, 0.119, 0.128, 0.134, 0.141, 0.144, 0.128, 0.105, 0.078, 0.0]},
+const TOP={owl:{"a": 0.5152, "h": 0.2388, "b": [0.0, 0.05, 0.076, 0.089, 0.099, 0.107, 0.112, 0.116, 0.119, 0.122, 0.124, 0.127, 0.133, 0.143, 0.147, 0.152, 0.156, 0.16, 0.163, 0.167, 0.169, 0.171, 0.173, 0.174, 0.174, 0.173, 0.172, 0.171, 0.168, 0.165, 0.161, 0.157, 0.152, 0.147, 0.142, 0.136, 0.13, 0.124, 0.135, 0.145, 0.154, 0.164, 0.173, 0.181, 0.189, 0.195, 0.196, 0.17, 0.149, 0.115, 0.03]},goose:{"a": 0.5425, "h": 0.3633, "b": [0.0, 0.013, 0.017, 0.026, 0.036, 0.04, 0.036, 0.029, 0.026, 0.028, 0.029, 0.033, 0.04, 0.053, 0.067, 0.083, 0.1, 0.131, 0.132, 0.133, 0.133, 0.134, 0.135, 0.136, 0.136, 0.137, 0.138, 0.139, 0.14, 0.14, 0.141, 0.142, 0.143, 0.143, 0.144, 0.145, 0.111, 0.105, 0.1, 0.111, 0.119, 0.128, 0.134, 0.141, 0.144, 0.128, 0.105, 0.078, 0.0]},
 woodpecker:{"a": 0.5469, "h": 0.2684, "b": [0.0, 0.005, 0.009, 0.025, 0.048, 0.063, 0.074, 0.076, 0.087, 0.099, 0.105, 0.102, 0.098, 0.138, 0.137, 0.136, 0.135, 0.134, 0.133, 0.132, 0.131, 0.13, 0.129, 0.127, 0.126, 0.125, 0.124, 0.123, 0.122, 0.121, 0.12, 0.119, 0.118, 0.111, 0.109, 0.115, 0.122, 0.129, 0.135, 0.141, 0.145, 0.143, 0.123, 0.115, 0.088, 0.078, 0.0, 0.0]},
 hummingbird:{"a": 0.5442, "h": 0.3741, "b": [0.0, 0.001, 0.004, 0.007, 0.008, 0.008, 0.011, 0.012, 0.016, 0.025, 0.048, 0.063, 0.064, 0.064, 0.069, 0.073, 0.075, 0.084, 0.094, 0.108, 0.109, 0.11, 0.11, 0.111, 0.112, 0.112, 0.113, 0.114, 0.115, 0.116, 0.116, 0.117, 0.113, 0.113, 0.102, 0.1, 0.11, 0.124, 0.137, 0.149, 0.16, 0.17, 0.17, 0.17, 0.17, 0.17, 0.133, 0.0, 0.0]},
 hawk:{"a": 0.5414, "h": 0.1589, "b": [0.0, 0.009, 0.034, 0.045, 0.053, 0.061, 0.071, 0.083, 0.093, 0.093, 0.094, 0.094, 0.094, 0.094, 0.095, 0.095, 0.095, 0.096, 0.096, 0.096, 0.097, 0.097, 0.097, 0.097, 0.098, 0.098, 0.102, 0.103, 0.106, 0.11, 0.114, 0.116, 0.12, 0.124, 0.127, 0.131, 0.135, 0.139, 0.143, 0.146, 0.15, 0.152, 0.156, 0.16, 0.163, 0.164, 0.158, 0.082, 0.0]},
 vulture:{"a": 0.4719, "h": 0.2539, "b": [0.0, 0.009, 0.012, 0.015, 0.021, 0.032, 0.042, 0.05, 0.058, 0.061, 0.069, 0.083, 0.087, 0.091, 0.107, 0.154, 0.152, 0.15, 0.148, 0.146, 0.144, 0.142, 0.14, 0.138, 0.136, 0.134, 0.132, 0.13, 0.128, 0.126, 0.124, 0.122, 0.12, 0.118, 0.116, 0.114, 0.112, 0.11, 0.116, 0.123, 0.131, 0.138, 0.144, 0.15, 0.154, 0.131, 0.124, 0.097, 0.069, 0.058, 0.016]},
 };
-const WROW={goose:[.365,.719],woodpecker:[.287,.67],hummingbird:[.406,.635],hawk:[.177,.51],vulture:[.31,.73]};
-const LREF={goose:1,woodpecker:1,hummingbird:1,hawk:1,vulture:1.15},R0=.13,NX=72,NY=72;
+const WROW={owl:[.229,.729],goose:[.365,.719],woodpecker:[.287,.67],hummingbird:[.406,.635],hawk:[.177,.51],vulture:[.31,.73]};
+const LREF={owl:1,goose:1,woodpecker:1,hummingbird:1,hawk:1,vulture:1.15},R0=.13,NX=72,NY=72;
 let GL=null;
 function initGL(){if(GL!==null)return GL;try{if(!window.THREE)throw 0;
   const rd=new THREE.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true});rd.setClearColor(0,0);
@@ -669,7 +684,7 @@ function render(cv,b,t,cam,o){
     ctx.fillStyle=`rgb(${INK})`;for(let s=t-(t%b.cyc);s>t-o.path;s-=b.cyc){const q=P(baseOf(state(b,s)));ctx.beginPath();ctx.arc(q[0],q[1],2,0,TAU);ctx.fill()}}
   // floor plane (3D cue): grid anchored in world, shadow, drop line, wingbeat ripples
   const o2=P([0,0,0]);if(cam.pan)PAN.bird=o2;
-  if(cam.pan&&!fixed){let lab;if(b.mode==='hover'){const sp=HVS.sp,vy=HVS.vy;lab=sp>.25?'전진 비행':sp<-.2?'후진 비행':vy>.3?'상승':vy<-.3?'하강':'제자리 비행'}else{const tn=CTRL.turn,cl=CTRL.climb,fl=now.w>.5,base=b.mode==='straight'?'쉬지 않고 날갯짓':b.mode==='bound'?(fl?'날갯짓':'날개 접고 미끄러짐'):b.mode==='soar'?(fl?'날갯짓 한두 번':'상승기류 타고 선회'):b.mode==='flapglide'?(fl?'날갯짓':'활공'):'비행',st=Math.abs(tn)>.2?(tn>0?'오른쪽 선회':'왼쪽 선회'):cl>.12?'상승':cl<-.12?'하강':'';lab=st?`${st} · ${base}`:base}ctx.font=`500 12px ${FONT}`;ctx.textAlign='center';const tw=ctx.measureText(lab).width+20,yy=o2[1]+c.scale*.62;ctx.fillStyle=`rgba(${BGC},.7)`;ctx.beginPath();ctx.roundRect(o2[0]-tw/2,yy-13,tw,24,12);ctx.fill();ctx.fillStyle=`rgba(${INK},.85)`;ctx.fillText(lab,o2[0],yy+4)}
+  if(cam.pan&&!fixed){let lab;if(b.mode==='hover'){const sp=HVS.sp,vy=HVS.vy;lab=sp>.25?'전진 비행':sp<-.2?'후진 비행':vy>.3?'상승':vy<-.3?'하강':'제자리 비행'}else{const tn=CTRL.turn,cl=CTRL.climb,fl=now.w>.5,base=b.mode==='straight'?'쉬지 않고 날갯짓':b.mode==='bound'?(fl?'날갯짓':'날개 접고 미끄러짐'):b.mode==='soar'?(fl?'날갯짓 한두 번':'상승기류 타고 선회'):b.mode==='flapglide'?(fl?'날갯짓':'활공'):b.mode==='owl'?(fl?'느린 날갯짓':(now.cyc>.54&&now.cyc<.69)?'날개 접고 급강하':(now.cyc>=.69&&now.cyc<.8)?'날개 펴서 멈칫':'소리 없이 활공'):'비행',st=Math.abs(tn)>.2?(tn>0?'오른쪽 선회':'왼쪽 선회'):cl>.12?'상승':cl<-.12?'하강':'';lab=st?`${st} · ${base}`:base}ctx.font=`500 12px ${FONT}`;ctx.textAlign='center';const tw=ctx.measureText(lab).width+20,yy=o2[1]+c.scale*.62;ctx.fillStyle=`rgba(${BGC},.7)`;ctx.beginPath();ctx.roundRect(o2[0]-tw/2,yy-13,tw,24,12);ctx.fill();ctx.fillStyle=`rgba(${INK},.85)`;ctx.fillText(lab,o2[0],yy+4)}
   if(o.floor)space(ctx,P,W,H,fixed?[0,0,0]:now.S);
   if(o.floor){const Y=-1.15,R=3,fx=fixed?0:now.S[0],fz=fixed?0:now.S[2],ox=fx-Math.floor(fx),oz=fz-Math.floor(fz);ctx.lineWidth=1;
     const seg=(p0,p1)=>{const n=12;for(let i=0;i<n;i++){const u0=i/n,u1=(i+1)/n,q0=[p0[0]+(p1[0]-p0[0])*u0,Y,p0[2]+(p1[2]-p0[2])*u0],q1=[p0[0]+(p1[0]-p0[0])*u1,Y,p0[2]+(p1[2]-p0[2])*u1],r=Math.hypot((q0[0]+q1[0])/2,(q0[2]+q1[2])/2);
@@ -743,7 +758,7 @@ const WASD={KeyW:'ArrowUp',KeyA:'ArrowLeft',KeyS:'ArrowDown',KeyD:'ArrowRight'};
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;if(WASD[e.code]&&!e.metaKey&&!e.ctrlKey){e.preventDefault();HELD.add(WASD[e.code]);return}const k=e.key;
   if(k.startsWith('Arrow')){e.preventDefault();HELD.add(k)}
   else if(e.code==='KeyF'){toggleBird()}
-  else if('12345'.includes(k)&&k.length===1){setBird(+k-1)}
+  else if('123456'.includes(k)&&k.length===1){setBird(+k-1)}
   else if(k===' '){e.preventDefault();pb.click()}
   else if(k==='r'||k==='R'){resetC()}});
 document.addEventListener('keyup',e=>{HELD.delete(e.key);if(WASD[e.code])HELD.delete(WASD[e.code])});addEventListener('blur',()=>HELD.clear());
@@ -767,12 +782,12 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(playing)T
   if(auto&&playing){autoT+=dt;if(autoT>9){autoT=0;setBird(cur+1)}}
   const b=BIRDS[cur],yawE=yaw,mob=innerWidth<=900,W=innerWidth,fl=mob?0:(document.body.classList.contains('clean')?20:300),fr=W-40,fw=fr-fl,cam={yaw:yawE,pitch,zoom:b.zoom*(mob?.85:1.15),ox:mob?.5+(b.ox-.5)*1.2:.5,oy:mob?.5:.47,fw:mob?null:fw,cx:mob?null:(step===1?fl+fw*.66:(fl+fr)/2+(b.ox-.5)*fw*.8),clipL:mob?null:fl+40,pan:!mob};
   if(!mob&&PAN.box){const bx=PAN.box,L=fl+30,R=W-160,Tp=90,Bt=bx.H-150,fitA=(p,lo,hi)=>{const a=p+lo,z=p+hi;return a>z?(a+z)/2:Math.max(a,Math.min(z,0))};const nowT=performance.now();if(HELD.size)PAN.steer=nowT;const steering=nowT-(PAN.steer||0)<1800,zin=(zoomK>1.04||steering||BIRDS[cur].mode==='hover')&&PAN.bird,bd=PAN.bird,mg=Math.min(220,(R-L)*.25),tx=zin?fitA(PAN.x,L+mg-bd[0],R-mg-bd[0]):fitA(PAN.x,L-bx.l,R-bx.r),ty=zin?fitA(PAN.y,Tp+(BIRDS[cur].mode==='hover'?230:120)-bd[1],Bt-(BIRDS[cur].mode==='hover'?170:120)-bd[1]):fitA(PAN.y,Tp-bx.t,Bt-bx.b),k=1-Math.exp(-dt*(steering?.9:1.2)),fz=Math.min((R-L)/Math.max(1,bx.r-bx.l),1.6*(Bt-Tp)/Math.max(1,bx.b-bx.t)),tz=(zin&&BIRDS[cur].mode!=='hover')||steering?PAN.z:Math.max(.12,Math.min(1,PAN.z*fz*.96));PAN.z+=(tz-PAN.z)*k;PAN.x+=(tx-PAN.x)*k;PAN.y+=(ty-PAN.y)*k}
-  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;if(b.mode!=='hover'&&b.mode!=='soar'){const S1=KIN[b.mode](T).S,S0=KIN[b.mode](T-2).S,v=Math.max(.2,Math.hypot(S1[0]-S0[0],S1[2]-S0[2])/2);o.win=Math.min(o.win,(b.mode==='flapglide'?1.5:2.2)*CTRL.len/v)}o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
+  const o=step===0?{frame:'world',win:b.cyc*.6,alpha:.45,path:b.cyc*2.6,hud:1,ghosts:1}:step===1?{frame:'world',win:b.mode==='soar'?3.5:b.cyc,alpha:1,snaps:alt?(b.mode==='soar'?6:8):0,ghosts:1,hud:1}:{frame:'fixed',win:b.mode==='soar'?2.6:b.cyc,alpha:1,fan:1,hud:1,n:170};o.photo=!alt;o.floor=1;if(step===1){const cy=b.mode==='soar'?1.6:b.mode==='bound'?b.cyc*.4:b.cyc;o.win=cy*CTRL.len;if(b.mode!=='hover'&&b.mode!=='soar'){const S1=KIN[b.mode](T).S,S0=KIN[b.mode](T-2).S,v=Math.max(.2,Math.hypot(S1[0]-S0[0],S1[2]-S0[2])/2);o.win=Math.min(o.win,((b.mode==='flapglide'||b.mode==='owl')?1.5:2.2)*CTRL.len/v)}o.n=Math.round(Math.min(1100,Math.max(160,90*CTRL.len*(b.mode==='hover'?1.4:b.mode==='bound'?3:1))))}if(step===2&&b.mode!=='soar')o.win=b.cyc*Math.min(2,CTRL.len);if(!CTRL.bird)o.hud=0;
   if(step===0)cam.zoom*=b.mode==='soar'?.8:.9;if(step===2){cam.zoom*=b.mode==='soar'?2:.95;if(!mob)cam.cx=(fl+fr)/2}
   zoomK+=(zoomT-zoomK)*(1-Math.exp(-dt*5));if(VIEWT&&!drag){const k=1-Math.exp(-dt*6);let dy=VIEWT.y-yaw;while(dy>Math.PI)dy-=TAU;while(dy<-Math.PI)dy+=TAU;yaw+=dy*k;pitch+=(VIEWT.p-pitch)*k;if(Math.abs(dy)<1e-3&&Math.abs(VIEWT.p-pitch)<1e-3){yaw=VIEWT.y;pitch=VIEWT.p;VIEWT=null}syncYaw()}if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){const k=Math.exp(-dt*5);yaw+=vy;pitch=Math.max(-1.5,Math.min(1.55,pitch+vp));vy*=k;vp*=k;syncYaw()}cam.zoom*=zoomK;if(cmpOpen)drawDyn();else{(step<2&&(ensureLog(b,T),USELOG=true),render(cv,b,T,cam,o),USELOG=false);drawRuler();drawDots()}requestAnimationFrame(frame)}
 
 // ---------- compare page ----------
-const CMP={wing:{goose:'길고 좁은 날개',woodpecker:'짧고 둥근 날개',hummingbird:'짧고 단단한 날개',vulture:'넓고 긴 날개, 갈라진 끝깃',hawk:'짧고 둥근 날개, 긴 꼬리'}};
+const CMP={wing:{goose:'길고 좁은 날개',woodpecker:'짧고 둥근 날개',hummingbird:'짧고 단단한 날개',vulture:'넓고 긴 날개, 갈라진 끝깃',hawk:'짧고 둥근 날개, 긴 꼬리',owl:'넓고 둥근 날개, 부드러운 깃 가장자리'}};
 const TOPIMG={};BIRDS.forEach(b=>{const im=new Image();im.src=`tex/${b.id}.webp`;im.onload=()=>cmpOpen&&drawCmp();TOPIMG[b.id]=im});
 Object.values(FR).flat().forEach(im=>im.addEventListener('load',()=>cmpOpen&&drawCmp()));
 const ACC='201,180,143';let cmpOpen=false,hlCol=-1;
@@ -816,7 +831,7 @@ function drawCell(cv){{const [x,W,H]=cfit(cv);if(!W)return;const b=BIRDS[+cv.dat
      x.strokeStyle='rgba(245,242,235,.95)';x.lineWidth=1.6;x.beginPath();x.moveTo(cx,cy);x.lineTo(Q[0],Q[1]);x.stroke();x.fillStyle='#f5f2eb';x.beginPath();x.arc(Q[0],Q[1],4,0,TAU);x.fill();x.globalAlpha=1}
     x.font=`500 13px ${FONT}`;x.textAlign='left';x.fillStyle=`rgb(${INK})`;x.fillText(`${st.amp}°`,8,16);
     x.font=`400 10.5px ${FONT}`;x.fillStyle=`rgba(${INK},.5)`;x.fillText(hv?'위에서 본 앞뒤 스윙':'앞에서 본 위아래',8,H-6);
-  }else if(r===2){const im=TOPIMG[b.id];if(!im.complete||!im.naturalWidth)return;const sp=b.id==='vulture'?1:b.id==='goose'?.86:b.id==='hawk'?.62:b.id==='woodpecker'?.5:.42,w=W*.94*sp,hh=w*im.naturalHeight/im.naturalWidth;
+  }else if(r===2){const im=TOPIMG[b.id];if(!im.complete||!im.naturalWidth)return;const sp=b.id==='vulture'?1:b.id==='goose'?.86:b.id==='hawk'?.62:b.id==='owl'?.8:b.id==='woodpecker'?.5:.42,w=W*.94*sp,hh=w*im.naturalHeight/im.naturalWidth;
     x.drawImage(im,(W-w)/2,(H-hh)/2,w,hh);
   }else{const span=4,n=Math.round(W);for(let i=0;i<n;i++){const st=state(b,span*i/n);if(st.w>.5){x.fillStyle=`rgba(${ACC},.18)`;x.fillRect(i,0,1.2,H)}}
     x.strokeStyle=`rgba(${INK},.8)`;x.lineWidth=1;x.beginPath();for(let i=0;i<=n;i++){const tb=state(b,span*i/n).tipB,v=(b.mode==='hover'?tb[0]:tb[1])/1.05,y=H/2-v*(H/2-4);i?x.lineTo(i,y):x.moveTo(0,y)}x.stroke();
@@ -842,7 +857,8 @@ const CAP={
  woodpecker:['여섯 번쯤 빠르게 날갯짓한 뒤, 날개를 몸에 붙이고 떨어지듯 나아갑니다. 날갯짓은 약 0.47초, 날개를 접는 시간은 약 0.35초. 이 리듬이 반복되면서 길이 물결 모양이 됩니다.','Tobalske 1996'],
  hummingbird:['날개를 앞뒤로 약 110° 저어 제자리에 머물며, 날개끝이 공중에 8자를 그립니다. 앞으로 칠 때 몸무게의 75%를 떠받쳐요.','Tobalske 외 2007 · Warrick 외 2005 · Sapir·Dudley 2012'],
  vulture:['거의 날갯짓하지 않고, 날개를 편 채 올라오는 더운 공기를 탑니다. 다른 독수리보다 좁게 원을 그려 상승기류가 가장 센 곳에 머뭅니다.','Durmus & Keskin 2021 · Harel 외 2016'],
- hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010']};
+ hawk:['몇 번 힘차게 날갯짓한 뒤 날개를 편 채 미끄러지듯 나아갑니다. 숲 사이를 빠르게 지나는 사냥 방식이고, 제자리에 떠 있는 정지비행은 하지 않습니다.','British Garden Birds · Bruderer 외 2010'],
+ owl:['몸에 비해 큰 날개로 느리게 치고 길게 미끄러지며, 소리 없이 납니다. 먹이를 찾으면 날개를 접고 내리꽂습니다.','Clark 외 2020 · Wolf·Konrath 2015 · Bachmann 2012']};
 
 const CLIM={amp:[.4,1.6],freq:[.4,2],turn:[-1,1],climb:[-.4,.4],len:[1,8]};
 function fmtC(k,v){if(k==='amp'||k==='freq')return Math.round(v*100)+'%';if(k==='turn')return Math.abs(v)<.03?'직진':(v>0?'오른쪽 ':'왼쪽 ')+Math.round(Math.abs(v)*100)+'%';if(k==='climb')return Math.abs(v)<.01?'수평':(v>0?'상승 ':'하강 ')+Math.round(Math.abs(v)*100)+'%';return v+'주기'}
@@ -879,7 +895,8 @@ const VID={goose:['https://www.youtube.com/watch?v=y0aMoOssBDY','캐나다기러
  woodpecker:['https://www.youtube.com/watch?v=BA5qpodj34Y','솜털딱다구리 비행 슬로모션'],
  hummingbird:['https://www.youtube.com/watch?v=gJ_T_Y1rxHw','벌새 정지비행 슬로모션 · Smithsonian Channel'],
  vulture:['https://www.youtube.com/watch?v=bOdqfhyZkMM&t=40s','독수리 비행 영상 (40초부터)'],
- hawk:['https://www.youtube.com/watch?v=v08k2De6jdk','새매 비행 고속촬영 (200fps)']};
+ hawk:['https://www.youtube.com/watch?v=v08k2De6jdk','새매 비행 고속촬영 (200fps)'],
+ owl:['https://www.youtube.com/watch?v=qO0U29wBUJA','원숭이올빼미 비행 슬로모션 (Taronga)']};
 const start=BIRDS.findIndex(b=>'#'+b.id===location.hash);
 const wantCmp=location.hash==='#compare';setBird(start<0?0:start,true);setStep(1);syncYaw();syncPlay();requestAnimationFrame(frame);if(wantCmp)showPage('cmp');
 }
