@@ -684,15 +684,16 @@ function render(cv,b,t,cam,o){
   const A3=[],B3=[],A=[],B=[],F=[],WG=[];ts.forEach(s=>{const st=state(b,s),a=baseOf(st),q=add(a,tipOf(st));A3.push(a);B3.push(q);A.push(P(a));B.push(P(q));F.push(Math.max(0,Math.min(1,(s-(t-o.win))/o.win)));WG.push(b.mode==='hover'?.55+.45*Math.tanh(3*Math.cos(TAU*(st.ph||0))):1)});
   const M=A.length;
   // faint body so it still reads as a surface
-  for(let j=0;j<M-1;j++){ctx.fillStyle=`rgba(${INK},${.06*o.alpha*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
+  const NV=A3.map((a,j)=>{const m=c.dist+Math.min(projZ(a,c),projZ(B3[j],c));return Math.max(0,Math.min(1,(m-2.2)/2))});
+  for(let j=0;j<M-1;j++){if(!NV[j]||!NV[j+1])continue;ctx.fillStyle=`rgba(${INK},${.06*o.alpha*Math.min(NV[j],NV[j+1])*(F[j]<.55?Math.pow(F[j]/.55,1.8):1)})`;ctx.beginPath();ctx.moveTo(A[j][0],A[j][1]);ctx.lineTo(B[j][0],B[j][1]);ctx.lineTo(B[j+1][0],B[j+1][1]);ctx.lineTo(A[j+1][0],A[j+1][1]);ctx.closePath();ctx.fill()}
   // string lines along the sweep (root → tip), like stretched threads
   const L=26,CH=Math.max(3,Math.round(M/90));ctx.lineWidth=.7;ctx.lineJoin='round';
   for(let k=0;k<=L;k++){const f=k/L,edge=k===0||k===L,pts=new Array(M);for(let j=0;j<M;j++){const a3=A3[j],b3=B3[j];pts[j]=P([a3[0]+(b3[0]-a3[0])*f,a3[1]+(b3[1]-a3[1])*f,a3[2]+(b3[2]-a3[2])*f])}
     const w=edge?1.4:.9,base=.38+.55*Math.pow(f,1.1);ctx.lineWidth=w;
-    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH),ag=F[Math.min(M-1,j0+(CH>>1))],fd=(ag<.55?Math.pow(ag/.55,1.8):1)*WG[Math.min(M-1,j0+(CH>>1))],al=Math.min(1,(edge?.95:base)*fd*o.alpha);
+    for(let j0=0;j0<M-1;j0+=CH){const j1=Math.min(M-1,j0+CH);let nvm=1;for(let j=j0;j<=j1;j++)nvm=Math.min(nvm,NV[j]);if(!nvm)continue;const ag=F[Math.min(M-1,j0+(CH>>1))],fd=(ag<.55?Math.pow(ag/.55,1.8):1)*WG[Math.min(M-1,j0+(CH>>1))],al=Math.min(1,(edge?.95:base)*fd*nvm*o.alpha);
       ctx.strokeStyle=`rgba(${INK},${al})`;ctx.beginPath();ctx.moveTo(pts[j0][0],pts[j0][1]);for(let j=j0+1;j<=j1;j++)ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}}
   LASTMESH={A3,B3,id:b.id};
-  if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach(q=>{if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
+  if(cam.pan){let l=1e9,r=-1e9,tp=1e9,bt=-1e9;A.concat(B).forEach((q,qi)=>{if(NV[qi%M]<.5)return;if(q[0]<l)l=q[0];if(q[0]>r)r=q[0];if(q[1]<tp)tp=q[1];if(q[1]>bt)bt=q[1]});PAN.box={l,r,t:tp,b:bt,W,H}}
   const N2=M-1;
   const a=A[N2],bq=B[N2];
   if(o.photo&&CTRL.bird){if(!draw3D(ctx,b,now,fixed,c,W,H)){const hv=P(fixed?[.6,0,0]:mul(now.d,.6)),dx=(hv[0]-o2[0])/(.6*c.scale);drawPhoto(ctx,b,t,o2,c.scale,1,Math.sign(dx||1),0)}}
