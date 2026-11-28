@@ -421,7 +421,7 @@ const BIRDS=[
   n:'4–5',u:'회/초',nsub:'몇 번 힘차게 치고 활공 · 정지비행은 하지 않는다',
   s:['낮게 오르내리는 길','짧게 치고, 길게 미끄러진다','힘을 쓸 때만 크게'],
   icon:dotsOn(u=>u<.45?[3+u*40,12+(Math.floor(u*18)%2?-6:6)]:[3+u*40,12])}
- ,{id:'owl',word:'Silent',ko:'원숭이올빼미',en:'Barn owl',mode:'owl',tag:'SILENT · STOOP',tk:'저소음 비행·급강하',cyc:7,win:3.5,pitch:.28,zoom:.3,yaw:28,ox:.6,
+ ,{id:'owl',word:'Silent',ko:'원숭이올빼미',en:'Barn owl',mode:'owl',tag:'SILENT · STOOP',tk:'저소음 비행·급강하',cyc:7,win:3.5,pitch:.28,zoom:.3,yaw:28,ox:.5,
   head:'고요.',copy:'소리 없이 난다',
   n:'≈4',u:'회/초',nsub:'큰 날개로 느리게 치고 길게 미끄러짐 · 먹이를 보면 급강하',
   s:['낮게 미끄러지는 길','느리게 치고, 조용히 미끄러진다','접고 내리꽂는다'],
@@ -671,7 +671,7 @@ function poseMesh(mesh,id,b,now,fixed,belly){
       else{const zz=z*Lr,tf=1-.85*sm((v-WROW[id][1])/.1),spn=Math.pow(Math.sin(Math.PI*Math.min(1,Math.max(0,v/(WROW[id][1]+.04)))),.55),dome=bw>0?tf*.95*bw*spn*Math.pow(Math.max(0,1-(zz/Math.max(bw,1e-4))**2),.75):0;P=add(add(mul(F,bx),mul(Lt,zz)),mul(U,belly?-dome*.95:dome))}
       const w=W3(P);pos[k++]=w[0];pos[k++]=w[1];pos[k++]=w[2]}}
   mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.computeVertexNormals()}
-function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const M=g.meshes[b.id];if(!M)return false;
+function draw3D(ctx,b,now,fixed,c,W,H){if(b.id==='owl'){if(GL&&GL.meshes)for(const k in GL.meshes)GL.meshes[k].grp.visible=false;return false}const g=initGL();if(!g)return false;const M=g.meshes[b.id];if(!M)return false;
   for(const k in g.meshes)g.meshes[k].grp.visible=k===b.id;
   poseMesh(M.top,b.id,b,now,fixed,0);poseMesh(M.bel,b.id,b,now,fixed,1);
   {const id=b.id,T_=TOP[id],Lr=LREF[id],d=fixed?[1,0,0]:now.d,l=fixed?[0,0,1]:now.l,W3=v=>[v[0]*d[0]+v[2]*l[0],v[1],v[0]*d[2]+v[2]*l[2]];
