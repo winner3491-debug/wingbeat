@@ -381,14 +381,14 @@ const KIN={
     const u=((t/P)%1+1)%1,ft=u*P-1.0,FD=1.5,fw=ft>0&&ft<FD?Math.sin(Math.PI*ft/FD)**.6:0,fp=TAU*2*Math.max(0,ft)/FD,e0=Math.asin(dih-Math.sin(b)),e=e0+fw*(0.62*Math.cos(fp)+0.12),sw=fw*0.16*Math.sin(fp),ff=f*(1-0.12*fw*Math.max(0,-Math.sin(fp)));
     return{S:[R*Math.sin(th),0.22*t,R*(1-Math.cos(th))],tip:[ff*Math.cos(e)*Math.sin(sw),ff*Math.sin(e),ff*Math.cos(e)*Math.cos(sw)],w:fw>.05?1:0,cyc:((t/P)%1+1)%1,d:[Math.cos(th),0,Math.sin(th)],l:[-Math.sin(th),0,Math.cos(th)]}},
   owl:(()=>{const C=7,N=700,seg=t=>t<2.25?0:t<3.8?1:t<4.8?2:t<5.6?3:4,vx=t=>[.95,.9,1.55,.75,.9][seg(t)],X=[0];for(let i=1;i<=N;i++){const a=(i-.5)/N*C;X.push(X[i-1]+vx(a)*C/N)}const XC=X[N];
-    const yf=t=>t<2.25?0:t<3.8?-.12*sm((t-2.25)/1.55):t<4.8?-.12-1.0*Math.pow((t-3.8),1.6):t<5.6?-1.12+.42*sm((t-4.8)/.8):-.7+.7*sm((t-5.6)/1.4);
+    const yf=t=>t<2.25?0:t<3.8?-.06*sm((t-2.25)/1.55):t<4.8?-.06-.38*sm((t-3.8)/1):t<5.6?-.44+.14*sm((t-4.8)/.8):-.3+.3*sm((t-5.6)/1.4);
     return t=>{const k=Math.floor(t/C),tau=t-k*C,i=Math.min(N-1,Math.floor(tau/C*N)),fr=tau/C*N-i,x=k*XC+X[i]+(X[i+1]-X[i])*fr,sg=seg(tau);
       let ph,ps,f,w=0,pt=0,beat=0;
       if(sg===0||sg===4){const T=sg?.7:.75,t0=sg?5.6:0,p=TAU*(tau-t0)/T,env=sm((tau-t0)/.15)*sm(((sg?7:2.25)-tau)/.15);w=env>.5?1:0;beat=(tau-t0)/T;
         ph=env*(0.62*Math.cos(p)+0.05)+(1-env)*0.08;ps=env*0.16*Math.sin(p);f=1-env*0.12*Math.max(0,-Math.sin(p))}
       else if(sg===1){ph=.08+.03*Math.sin(TAU*tau/1.2);ps=0;f=1}
-      else if(sg===2){const s=sm((tau-3.8)/.35);ph=.08+s*.45;ps=-s*.95;f=1-s*.5;pt=-.55*s}
-      else{const s=sm((tau-4.8)/.25),r=sm((tau-5.25)/.35);ph=.53-.25*s-.2*r;ps=-.95+1.2*s-.25*r;f=.5+.5*s;pt=-.55+.9*s-.35*r}
+      else if(sg===2){const s=sm((tau-3.8)/.35);ph=.08+s*.45;ps=-s*.95;f=1-s*.5;pt=-.32*s}
+      else{const s=sm((tau-4.8)/.25),r=sm((tau-5.25)/.35);ph=.53-.25*s-.2*r;ps=-.95+1.2*s-.25*r;f=.5+.5*s;pt=-.32+.55*s-.23*r}
       return{S:[x,yf(tau),0],tip:tipVec(ph,ps,f),w,cyc:tau/C,ph:beat,pt}}})(),
   flapglide(t){const C=2.6,u=((t/C)%1+1)%1,fl=0.42,w=sm(u/0.05)*sm((fl-u)/0.05),p=TAU*3*u/fl;
     const y=u<fl?-0.15+0.3*sm(u/fl):0.15-0.3*sm((u-fl)/(1-fl));
