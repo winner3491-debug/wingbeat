@@ -607,7 +607,15 @@ function initGL(){if(GL!==null)return GL;try{if(!window.THREE)throw 0;
       const ft=loader.load('tex/owl-face.webp');ft.anisotropy=rd.capabilities.getMaxAnisotropy();const cg=new THREE.BufferGeometry(),AR=16,AS=40,AA=1.25,cp=[],cu=[],ci=[];for(let i=0;i<=AR;i++){const a=AA*i/AR;for(let j=0;j<=AS;j++){const t=TAU*j/AS,x=Math.sin(a)*Math.cos(t),y=Math.sin(a)*Math.sin(t);cp.push(x,y,Math.cos(a));cu.push(.5+.5*x/Math.sin(AA),.5+.5*y/Math.sin(AA))}}for(let i=0;i<AR;i++)for(let j=0;j<AS;j++){const a0=i*(AS+1)+j,b0=a0+1,c0=a0+AS+1,d0=c0+1;ci.push(a0,c0,b0,b0,c0,d0)}cg.setAttribute('position',new THREE.Float32BufferAttribute(cp,3));cg.setAttribute('uv',new THREE.Float32BufferAttribute(cu,2));cg.setIndex(ci);
       face=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({map:ft,transparent:true,alphaTest:.3,side:THREE.BackSide}));face.matrixAutoUpdate=false;face.frustumCulled=false;grp.add(face)}
     let rig=null;
-    meshes[id]={grp,top,bel,tube,face,rig};grp.visible=false;scene.add(grp);void 0});
+    let legs=null;if(id==='owl'){legs=new THREE.Group();legs.matrixAutoUpdate=false;legs.frustumCulled=false;
+      const ma=(c,r)=>new THREE.MeshStandardMaterial({color:c,roughness:r||.9});const mW=ma(0xf3ece2),mT=ma(0xe9dccb),mK=ma(0xb79a86,.7),mC=ma(0x2a2422,.45);
+      const cyl=(r0,r1,L,m)=>{const g=new THREE.CylinderGeometry(r0,r1,L,12);g.translate(0,-L/2,0);const o=new THREE.Mesh(g,m);o.frustumCulled=false;return o};
+      legs.userData.L=[1,-1].map(sd=>{const hip=new THREE.Group();hip.position.set(0,0,.34*sd);const th=cyl(.26,.2,.62,mW);hip.add(th);
+        const knee=new THREE.Group();knee.position.y=-.58;hip.add(knee);knee.add(cyl(.14,.11,.72,mT));const ft=new THREE.Group();ft.position.y=-.72;knee.add(ft);
+        const toes=[0,.55,-.55,Math.PI].map((ay,i)=>{const tn=new THREE.Group();tn.rotation.y=ay*sd;ft.add(tn);const tc=new THREE.Group();tn.add(tc);const tg=cyl(.06,.05,.36,mK);tg.rotation.z=Math.PI/2;tc.add(tg);
+          const cl=new THREE.Group();cl.position.x=.36;tc.add(cl);const cg=new THREE.ConeGeometry(.05,.2,8);cg.translate(0,.1,0);const cm=new THREE.Mesh(cg,mC);cm.rotation.z=-Math.PI/2-.5;cm.frustumCulled=false;cl.add(cm);return tc});
+        legs.add(hip);return{hip,knee,ft,toes}});grp.add(legs)}
+    meshes[id]={grp,top,bel,tube,face,rig,legs};grp.visible=false;scene.add(grp);void 0});
   scene.add(new THREE.HemisphereLight(0xfff6ea,0x8a7c6c,.62));const dl=new THREE.DirectionalLight(0xfff0dc,.7);dl.position.set(1.5,4,2.5);scene.add(dl);const dl2=new THREE.DirectionalLight(0xcfd8ff,.18);dl2.position.set(-2,-1,-3);scene.add(dl2);
   GL={rd,scene,cam,meshes}}catch(e){GL=false}return GL}
 function buildOwlRig(grp){
@@ -679,6 +687,9 @@ function draw3D(ctx,b,now,fixed,c,W,H){const g=initGL();if(!g)return false;const
    for(let r=0;r<=NY;r++){const v=r/NY,bx=(T_.h-v)*T_.a*2*Lr,bw=Math.min(bodyW(id,v),R0)*Lr*.9,tf=1-.85*sm((v-WROW[id][1])/.1),spn=Math.pow(Math.sin(Math.PI*Math.min(1,Math.max(0,v/(WROW[id][1]+.04)))),.55),hh=Math.max(bw*.95*spn*tf*.92,bw*.12);let bw2=bw,hh2=hh,fw=0;if(OWL&&v>=HV){const K=[[.17,1],[.24,.82],[.32,.98],[.45,1.08],[.58,.95],[.7,.62],[.78,.3],[.86,.14],[1,.06]];let r=K[K.length-1][1];for(let i2=0;i2<K.length-1;i2++)if(v<=K[i2+1][0]){const f=sm((v-K[i2][0])/(K[i2+1][0]-K[i2][0]));r=K[i2][1]+(K[i2+1][1]-K[i2][1])*f;break}bw2=bwH*r*.92;hh2=bwH*r*(v<.75?1.02:.6)}if(OWL&&v<HV){const x=Math.min(1,(HV-v)/HV),hr=x>0?bwH*Math.sqrt(Math.max(0,1-x*x)):bwH,bl=sm((HV+.08-v)/.08);bw2=bw+(hr-bw)*bl;hh2=hh+(hr*.98-hh)*bl;fw=Math.max(0,x)}
      for(let j=0;j<=RS;j++){const an=TAU*j/RS,zz=bw2*Math.cos(an),sy=Math.sin(an),yy=hh2*sy*(sy<0?.95:1);ff[o3++]=fw;ff[o3++]=Math.cos(an);ff[o3++]=sy;const P=W3(add(add(mul(F,bx),mul(Lt,zz)),mul(U,yy)));pp[k++]=P[0];pp[k++]=P[1];pp[k++]=P[2];uu[q++]=.5+.5*(bw2>1e-6?zz*bw/bw2:zz)/Lr;uu[q++]=1-v}}
    if(M.face){const L=HV*T_.a*2*Lr,bxc=(T_.h-HV)*T_.a*2*Lr,rx=bwH*1.03,ry=bwH*.99,rz=L*1.03,c0=W3(mul(F,bxc)),X=W3(Lt),Y=W3(U),Z=W3(F);M.face.matrix.set(X[0]*rx,Y[0]*ry,Z[0]*rz,c0[0],X[1]*rx,Y[1]*ry,Z[1]*rz,c0[1],X[2]*rx,Y[2]*ry,Z[2]*rz,c0[2],0,0,0,1);M.face.matrixWorldNeedsUpdate=true}
+   if(M.legs){const s_=bwH*1.35,hp=W3(add(mul(F,(T_.h-.42)*T_.a*2*Lr),mul(U,-bwH*.55))),X=W3(F),Y=W3(U),Z=W3(Lt);M.legs.matrix.set(X[0]*s_,Y[0]*s_,Z[0]*s_,hp[0],X[1]*s_,Y[1]*s_,Z[1]*s_,hp[1],X[2]*s_,Y[2]*s_,Z[2]*s_,hp[2],0,0,0,1);M.legs.matrixWorldNeedsUpdate=true;
+     const cy=now.cyc||0,gr=sm((cy-.6)/.07)*(1-sm((cy-.76)/.06)),mx=(a,b)=>a+(b-a)*gr;
+     M.legs.userData.L.forEach(L=>{L.hip.rotation.z=mx(-1.38,.55);L.knee.rotation.z=mx(.12,-.35);L.ft.rotation.z=mx(-.2,.9);L.toes.forEach((t,i)=>{t.rotation.z=mx(-1.1,-.15)*(i===3?-1:1)})})}
    g_.attributes.fc.needsUpdate=true;g_.attributes.position.needsUpdate=true;g_.attributes.uv.needsUpdate=true;g_.computeVertexNormals()}
   if(M.rig){M.top.visible=M.bel.visible=M.tube.visible=false;poseOwlRig(M,now,fixed)}
   if(b.id==='owl'){M.bel.visible=false;M.top.scale.set(1,1,1)}
